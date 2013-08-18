@@ -37,7 +37,6 @@ typedef enum {
 	kScanToolDeviceTypeBluTrax = 0,
 	kScanToolDeviceTypeELM327,
 	kScanToolDeviceTypeOBDKey,
-	kScanToolDeviceTypeGoLink,
 	kScanToolDeviceTypeSimulated,
 
 	kNumScanToolDeviceTypes
@@ -92,13 +91,9 @@ typedef enum {
 							 pid != 0xC0 && pid != 0xE0)
 
 
-// The time, in seconds, after which a location is considered stale
-#define LOCATION_DECAY_PERIOD				5.0f
-
-
 @protocol FLScanToolDelegate;
 
-@interface FLScanTool : NSObject <CLLocationManagerDelegate> {
+@interface FLScanTool : NSObject {
 
 	NSMutableArray*				_supportedSensorList;
 	
@@ -116,8 +111,6 @@ typedef enum {
 	FLScanToolProtocol			_protocol;
 	FLScanToolDeviceType		_deviceType;
 	BOOL						_waitingForVoltageCommand;
-	BOOL						_useLocation;
-	CLLocationManager*			_locationManager;
 	
 	NSTimer*					_batteryTimer;
 	NSTimer*					_pendingCodesTimer;
@@ -127,22 +120,23 @@ typedef enum {
 	
 	NSString*					_host;
 	NSInteger					_port;
+	
+	NSString*					_modemPath;
 }
 
 @property(readonly) NSArray* supportedSensors;
 @property(nonatomic, retain) NSArray* sensorScanTargets;
 @property(assign) id<FLScanToolDelegate> delegate;
 @property(nonatomic, readonly) BOOL scanning;
-@property(nonatomic, assign) BOOL useLocation;
-@property(nonatomic, retain, readonly) CLLocation* currentLocation;
 @property(nonatomic, retain, readonly) NSString* scanToolName;
 @property(nonatomic, readonly) FLScanToolState scanToolState;
 @property(nonatomic, readonly) FLScanToolProtocol scanToolProtocol;
 @property(nonatomic, readonly) FLScanToolDeviceType scanToolDeviceType;
 @property(nonatomic, readonly, getter=isWifiScanTool) BOOL wifiScanTool;
-@property(nonatomic, readonly, getter=isEAScanTool) BOOL eaScanTool;
-@property (nonatomic, copy) NSString* host;		//For WiFi ScanTool
-@property (nonatomic, assign) NSInteger port;	//For WiFi ScanTool
+@property(nonatomic, readonly, getter=isSerialScanTool) BOOL serialScanTool;
+@property (nonatomic, copy) NSString* host;			//For WiFi ScanTool
+@property (nonatomic, assign) NSInteger port;		//For WiFi ScanTool
+@property (nonatomic, retain) NSString *modemPath; //For Serial ScanTool
 
 
 + (FLScanTool*) scanToolForDeviceType:(FLScanToolDeviceType) deviceType;
@@ -191,6 +185,9 @@ typedef enum {
 - (void) getBatteryVoltage;
 - (void) stream:(NSStream*)stream handleEvent:(NSStreamEvent)eventCode;
 - (void) writeCachedData;
+- (void) startInitTimer;
+- (void) initTimerExpired;
+- (void) invalidateInitTimer;
 
 @end
 
@@ -201,6 +198,7 @@ typedef enum {
 - (void)scanDidStart:(FLScanTool*)scanTool;
 - (void)scanDidPause:(FLScanTool*)scanTool;
 - (void)scanDidCancel:(FLScanTool*)scanTool;
+- (void)scanDidFinish:(FLScanTool*)scanTool;
 - (void)scanToolWillSleep:(FLScanTool*)scanTool;
 - (void)scanToolDidConnect:(FLScanTool*)scanTool;
 - (void)scanToolDidDisconnect:(FLScanTool*)scanTool;

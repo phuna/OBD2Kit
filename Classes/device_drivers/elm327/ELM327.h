@@ -20,6 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "FLWifiScanTool.h"
+#import "EYSerialScanTool.h"
 #import "ELM327ResponseParser.h"
 
 
@@ -96,7 +97,7 @@ const static int elm_protocol_map[] = {
 #define GET_PROTOCOL(elm_proto)			elm_protocol_map[elm_proto]
 
 
-@interface ELM327 : FLWifiScanTool {
+@interface ELM327 : EYSerialScanTool {
 	ELM327InitState					_initState;
 	ELM327ResponseParser*			_parser;
 	NSMutableArray*					_initOperations;

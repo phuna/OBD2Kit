@@ -32,13 +32,7 @@
 			ecuAddress			= _ecuAddress,
 			pid					= _pid,
 			crc					= _crc,
-			responseString		= _responseString,
-			latitude			= _latitude,
-			longitude			= _longitude,
-			altitude			= _altitude,
-			horizontalAccuracy	= _locationHorizontalAccuracy,
-			verticalAccuracy	= _locationVerticalAccuracy,
-			gpsSpeed			= _gpsSpeed;
+			responseString		= _responseString;
 
 
 - (id) init {
@@ -55,13 +49,6 @@
 		_crc						= 0;
 		_mode						= 0;
 		
-		// These may be empty on occasion due to user disabling GPS
-		_latitude					= -1;
-		_longitude					= -1;
-		_altitude					= -1;
-		_locationVerticalAccuracy	= -1;
-		_locationHorizontalAccuracy	= -1;
-		_gpsSpeed					= -1;
 	}
 	
 	return self;
@@ -111,18 +98,6 @@
 	[super dealloc];
 }
 
-- (void) updateLocation:(CLLocation*)location {
-	
-	if(location) {
-		self.gpsSpeed			= location.speed;
-		self.latitude			= location.coordinate.latitude;
-		self.longitude			= location.coordinate.longitude;
-		self.altitude			= location.altitude;
-		self.horizontalAccuracy	= location.horizontalAccuracy;
-		self.verticalAccuracy	= location.verticalAccuracy;
-	}	
-}
-
 #pragma mark -
 #pragma mark NSCoding Methods
 
@@ -140,12 +115,6 @@
 	[encoder encodeInt32:_pid forKey:@"PID"];
 	[encoder encodeInt32:_crc forKey:@"CRC"];
 	[encoder encodeDataObject:_data];
-	[encoder encodeDouble:_latitude forKey:@"Latitude"];
-	[encoder encodeDouble:_longitude forKey:@"Longitude"];
-	[encoder encodeDouble:_altitude forKey:@"Altitude"];
-	[encoder encodeDouble:_locationHorizontalAccuracy forKey:@"HorizontalAccuracy"];
-	[encoder encodeDouble:_locationVerticalAccuracy forKey:@"VerticalAccuracy"];
-	[encoder encodeDouble:_gpsSpeed forKey:@"GPSSpeed"];
 }
 
 
@@ -163,12 +132,6 @@
 	self.pid					= [decoder decodeInt32ForKey:@"PID"];
 	self.crc					= [decoder decodeInt32ForKey:@"CRC"];
 	self.data					= [decoder decodeDataObject];
-	self.latitude				= [decoder decodeDoubleForKey:@"Latitude"];
-	self.longitude				= [decoder decodeDoubleForKey:@"Longitude"];
-	self.altitude				= [decoder decodeDoubleForKey:@"Altitude"];
-	self.horizontalAccuracy		= [decoder decodeDoubleForKey:@"HorizontalAccuracy"];
-	self.verticalAccuracy		= [decoder decodeDoubleForKey:@"VerticalAccuracy"];
-	self.gpsSpeed				= [decoder decodeDoubleForKey:@"GPSSpeed"];
 	
 	return self;
 }
@@ -192,13 +155,7 @@
 								  [NSNumber numberWithUnsignedInteger:_pid], @"pid",
 								  [NSNumber numberWithUnsignedInteger:_crc], @"crc",
 								  [NSString base64StringFromData:_data length:0xFFFFFFFF], @"data",
-								  [NSNumber numberWithDouble:_latitude], @"latitude",
-								  [NSNumber numberWithDouble:_longitude], @"longitude",
-								  [NSNumber numberWithDouble:_altitude], @"altitude",
-								  [NSNumber numberWithDouble:_locationHorizontalAccuracy], @"horizontalAccuracy",
-								  [NSNumber numberWithDouble:_locationVerticalAccuracy], @"verticalAccuracy",
-								  [NSNumber numberWithDouble:_gpsSpeed], @"gpsSpeed",
-								  nil];	
+								  nil];
 	
 	return responseDict;
 }

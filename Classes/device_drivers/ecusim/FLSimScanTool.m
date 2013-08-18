@@ -36,8 +36,8 @@
 	//Add Speed pid
 	[_supportedSensorList addObject:[NSNumber numberWithInt:0x0D]];
 
-	[self dispatchDelegate:@selector(scanToolDidInitialize:) withObject:nil];
 	[self dispatchDelegate:@selector(scanToolDidConnect:) withObject:nil];
+	[self dispatchDelegate:@selector(scanToolDidInitialize:) withObject:nil];
 }
 
 
@@ -99,7 +99,7 @@
 
 		}
 
-		FLINFO(@"*** STREAMS CANCELLED ***")
+		FLINFO(@"*** STREAMS CLOSED ***")
 	}
 	@catch (NSException * e) {
 		FLEXCEPTION(e)
@@ -108,9 +108,12 @@
 		[rpmResp release];
 		[spdResp release];
 		[pool release];
-		[self dispatchDelegate:@selector(scanDidCancel:) withObject:nil];
+		[self dispatchDelegate:@selector(scanDidFinish:) withObject:nil];
 	}	
 }
 
+- (NSString*) scanToolName {
+	return @"Simulated";
+}
 
 @end

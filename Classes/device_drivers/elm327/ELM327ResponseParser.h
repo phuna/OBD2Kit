@@ -34,7 +34,11 @@ extern NSString *const kNoData;
 
 
 #define ELM_OK(str)								strncasecmp(str, "OK", 2)
+#define ELM_ECHO_OFF_OK(str)					strncasecmp(str, "AT E0\r\nOK", 11)
+#define ELM_ECHO_OFF_OK_1(str)					strncasecmp(str, "AT E0\rOK", 9)
 #define ELM_ERROR(str)							!strncasecmp(str, "?", 1)
+#define CAN_ERROR(str)							!strncasecmp(str, "CAN ERROR", 9)
+#define ELM_UNABLE_TO_CONNECT(str)				!strncasecmp(str, "UNABLE TO CONNECT", 17)
 #define ELM_NO_DATA(str)						!strncasecmp(str, "NO DATA", 7)
 #define ELM_SEARCHING(str)						!strncasecmp(str, "SEARCHING...", 12)
 #define ELM_DATA_RESPONSE(str)					isdigit((int)*str) || ELM_SEARCHING(str)

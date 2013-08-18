@@ -482,7 +482,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 			// appears to be more common than previously anticipated.
 			// - mgile 08-Feb-2010
 			
-			FLERROR(@"data (0x%08X) is NULL or dataLength is not a multiple of 2 (%d)", data, dataLength)
+			FLERROR(@"data (0x%08X) is NULL or dataLength is not a multiple of 2 (%d)", (unsigned int)data, dataLength)
 			// data length must be a multiple of 2
 			// each DTC is encoded in 2 bytes of data
 			return nil;
@@ -610,8 +610,8 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 				30, 31
 			};
 			
-			[_sensorValueHistory removeObjectsFromIndices:(NSUInteger*)removalList numIndices:32];
-			//[_sensorValueHistory removeObjectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 32)]];
+			//[_sensorValueHistory removeObjectsFromIndices:(NSUInteger*)removalList numIndices:32];
+			[_sensorValueHistory removeObjectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 32)]];
 			_valueHistoryHead = 0;
 			_valueHistoryTail = 32;
 		}
@@ -953,7 +953,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	NSInteger minValue = [self minValueForMeasurement1:metric];
 	
 	if(minValue != INT_MAX) {
-		return [NSString stringWithFormat:@"%0.1d", minValue];
+		return [NSString stringWithFormat:@"%0.1ld", (long)minValue];
 	}
 	else {
 		return nil;
@@ -970,7 +970,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	NSInteger minValue = [self minValueForMeasurement2:metric];
 	
 	if(minValue != INT_MAX) {
-		return [NSString stringWithFormat:@"%0.1d", minValue];
+		return [NSString stringWithFormat:@"%0.1ld", (long)minValue];
 	}
 	else {
 		return nil;
@@ -992,7 +992,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 			return [NSString stringWithFormat:@"%0.1fk", f];
 		}
 		else {
-			return [NSString stringWithFormat:@"%0.1d", maxValue];
+			return [NSString stringWithFormat:@"%0.1ld", (long)maxValue];
 		}		
 	}
 	else {
@@ -1009,7 +1009,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	NSInteger maxValue = [self maxValueForMeasurement2:metric];
 	
 	if(maxValue != INT_MAX) {
-		return [NSString stringWithFormat:@"%0.1d", maxValue];
+		return [NSString stringWithFormat:@"%0.1ld", (long)maxValue];
 	}
 	else {
 		return nil;
@@ -1087,10 +1087,10 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	
 	dataA = dataA & ~0x7F; // only bit 0 is valid
 	
-	if(dataA & 0x01 != 0) {
+	if(dataA & (0x01 != 0)) {
 		return @"PTO_STATE: ON";
 	}
-	else if(dataA & 0x02 != 0) {
+	else if(dataA & (0x02 != 0)) {
 		return @"PTO_STATE: OFF";
 	}
 	else {
@@ -1163,28 +1163,28 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	unsigned char dataA		= 0;
 	[data getBytes:&dataA length:1];
 	
-	if(dataA & 0x01 != 0)
-		returnString		= [NSString stringWithFormat:@"O2S11", returnString];
+	if(dataA & (0x01 != 0))
+		returnString		= [NSString stringWithFormat:@"%@, O2S11", returnString];
 	
-	if(dataA & 0x02 != 0)
+	if(dataA & (0x02 != 0))
 		returnString		= [NSString stringWithFormat:@"%@, O2S12", returnString];
 	
-	if(dataA & 0x04 != 0)
+	if(dataA & (0x04 != 0))
 		returnString		= [NSString stringWithFormat:@"%@, O2S13", returnString];
 	
-	if(dataA & 0x08 != 0)
+	if(dataA & (0x08 != 0))
 		returnString		= [NSString stringWithFormat:@"%@, O2S14", returnString];
 	
-	if(dataA & 0x10 != 0)
+	if(dataA & (0x10 != 0))
 		returnString		= [NSString stringWithFormat:@"%@, O2S21", returnString];
 	
-	if(dataA & 0x20 != 0)
+	if(dataA & (0x20 != 0))
 		returnString		= [NSString stringWithFormat:@"%@, O2S22", returnString];
 	
-	if(dataA & 0x40 != 0)
+	if(dataA & (0x40 != 0))
 		returnString		= [NSString stringWithFormat:@"%@, O2S23", returnString];
 	
-	if(dataA & 0x80 != 0)
+	if(dataA & (0x80 != 0))
 		returnString		= [NSString stringWithFormat:@"%@, O2S24", returnString];
 	
 	
@@ -1199,28 +1199,28 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	[data getBytes:&dataA length:1];
 	
 	
-	if(dataA & 0x01 != 0)
-		returnString		= [NSString stringWithFormat:@"O2S11", returnString];
+	if(dataA & (0x01 != 0))
+		returnString		= [NSString stringWithFormat:@"%@, O2S11", returnString];
 	
-	if(dataA & 0x02 != 0)
+	if(dataA & (0x02 != 0))
 		returnString		= [NSString stringWithFormat:@"%@, O2S12", returnString];
 	
-	if(dataA & 0x04 != 0)
+	if(dataA & (0x04 != 0))
 		returnString		= [NSString stringWithFormat:@"%@, O2S21", returnString];
 	
-	if(dataA & 0x08 != 0)
+	if(dataA & (0x08 != 0))
 		returnString		= [NSString stringWithFormat:@"%@, O2S22", returnString];
 	
-	if(dataA & 0x10 != 0)
+	if(dataA & (0x10 != 0))
 		returnString		= [NSString stringWithFormat:@"%@, O2S31", returnString];
 	
-	if(dataA & 0x20 != 0)
+	if(dataA & (0x20 != 0))
 		returnString		= [NSString stringWithFormat:@"%@, O2S32", returnString];
 	
-	if(dataA & 0x40 != 0)
+	if(dataA & (0x40 != 0))
 		returnString		= [NSString stringWithFormat:@"%@, O2S41", returnString];
 	
-	if(dataA & 0x80 != 0)
+	if(dataA & (0x80 != 0))
 		returnString		= [NSString stringWithFormat:@"%@, O2S42", returnString];
 
 

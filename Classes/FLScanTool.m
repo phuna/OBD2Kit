@@ -23,7 +23,6 @@
 #import "FLScanTool.h"
 #import "FLLogging.h"
 #import "ELM327.h"
-#import "GoLink.h"
 #import "FLSimScanTool.h"
 
 @interface FLScanTool (Private)
@@ -42,8 +41,7 @@
 			scanToolDeviceType	= _deviceType,
 			host				= _host,
 			port				= _port,
-			useLocation			= _useLocation;
-
+			modemPath			= _modemPath;
 
 + (FLScanTool*) scanToolForDeviceType:(FLScanToolDeviceType) deviceType {
 	
@@ -54,9 +52,6 @@
 			break;
 		case kScanToolDeviceTypeELM327:
 			scanTool = [[ELM327 alloc] init];
-			break;
-		case kScanToolDeviceTypeGoLink:
-			scanTool = [[GoLink alloc] init];
 			break;
 		case kScanToolDeviceTypeSimulated:
 			scanTool = [[FLSimScanTool alloc] init];
@@ -130,7 +125,6 @@
 	[_commandQueue release];
 	[_supportedSensorList release];
 	[_sensorScanTargets release];	
-	[_locationManager release];
 	[_scanOperationQueue release];
 	[_streamOperation release];
 	[super dealloc];
@@ -146,8 +140,8 @@
 	return ([self isKindOfClass:[FLWifiScanTool class]]);
 }
 
-- (BOOL) isEAScanTool {	
-	return ([self isKindOfClass:[FLEAScanTool class]]);
+- (BOOL) isSerialScanTool {
+	return ([self isKindOfClass:[EYSerialScanTool class]]);
 }
 
 - (void) open {	
@@ -169,9 +163,8 @@
 	[_sensorScanTargets release];	
 	_sensorScanTargets	= [[NSArray arrayWithArray:targets] retain];
 	
-	if (![self isKindOfClass:[GoLink class]] && targets != nil) {
-		// The GoLink (GL1) has a heartbeat, so doesn't need an extra push
-		// to start scanning once targets have changed
+	if (targets != nil) {
+		// Extra push to start scanning once targets have changed
 		
 		[self sendCommand:[self dequeueCommand] initCommand:NO];
 		[self writeCachedData];
@@ -188,32 +181,12 @@
 	}
 }
 
-
-- (CLLocation*) currentLocation {
-	if(_locationManager && _locationManager.locationServicesEnabled) {
-		
-		// Check the timestamp to make sure it's current enough
-		CLLocation* lastKnownLocation = [_locationManager location];
-		if(lastKnownLocation) {
-			NSTimeInterval decay	= [[NSDate date] timeIntervalSinceDate:lastKnownLocation.timestamp];
-			if(decay > LOCATION_DECAY_PERIOD) {
-				[_locationManager stopUpdatingLocation];
-				[_locationManager startUpdatingLocation];
-			}
-
-			return lastKnownLocation;
-		}
-	}
-	
-	return nil;
-}
-
 - (void) enqueueCommand:(FLScanToolCommand*)command {
 	[_priorityCommandQueue addObject:command];
 }
 
-
 - (void) sendCommand:(FLScanToolCommand*)command initCommand:(BOOL)initCommand {
+FLTRACE_ENTRY
 	// Abstract method
 	[self doesNotRecognizeSelector:_cmd];
 }
@@ -383,6 +356,12 @@
 			[invocation performSelectorOnMainThread:@selector(invoke) withObject:nil waitUntilDone:NO];
 		}	
 	}
+	else if(!_delegate){
+		FLERROR(@"Error: delegate %@ is nil", _delegate);
+	}
+	else if(![_delegate respondsToSelector:selector]){
+		FLERROR(@"Error: delegate does not respond to selector:%@", NSStringFromSelector(selector));
+	}
 }
 
 #pragma mark -
@@ -410,18 +389,6 @@
 		_sensorScanTargets = nil;
 	}
 	
-	if(!_locationManager) {
-		_locationManager	= [[CLLocationManager alloc] init];
-	}
-	
-	
-	if(_locationManager.locationServicesEnabled) {
-		_locationManager.desiredAccuracy	= kCLLocationAccuracyBest;
-		_locationManager.delegate			= self;
-		[_locationManager startUpdatingLocation];
-	}	
-	
-	
 	[_scanOperationQueue release];
 	
 	_streamOperation		= [[NSInvocationOperation alloc] initWithTarget:self 
@@ -431,6 +398,7 @@
 	_scanOperationQueue		= [[NSOperationQueue alloc] init];
 	[_scanOperationQueue addOperation:_streamOperation];
 	[_scanOperationQueue setSuspended:NO];
+
 }
 
 
@@ -447,18 +415,20 @@
 
 
 - (void) cancelScan {
+	[self dispatchDelegate:@selector(scanDidCancel:) withObject:nil];
 	FLINFO("ATTEMPTING SCAN CANCELLATION")
 	[_scanOperationQueue cancelAllOperations];	
 	[_streamOperation cancel];
-	if(_locationManager && _locationManager.locationServicesEnabled) {
-		[_locationManager stopUpdatingLocation];
-		_locationManager.delegate	= nil;
-	}
 	
 	[_supportedSensorList removeAllObjects];
 	
 	FLDEBUG(@"_streamOperation.isCancelled = %d", _streamOperation.isCancelled)
-}
+	FLDEBUG(@"_streamOperation.isExecuting = %d", _streamOperation.isExecuting)
+	FLDEBUG(@"_scanTool.state = %d", _state)
+	
+	if([self.class respondsToSelector:@selector(invalidateInitTimer)])
+		[self invalidateInitTimer];
+}	
 
 
 - (void)updateSafetyCheckState {
@@ -474,22 +444,13 @@
 	@try {
 		[self open];
 		
-		[self dispatchDelegate:@selector(scanDidStart:) withObject:nil];	
 		[self initScanTool];
 		
-		if ([self isEAScanTool]) {
-			while (!_streamOperation.isCancelled && [currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:distantFutureDate]) {
-				;;
-			}
-		}
-		else if([self isWifiScanTool]) {
-			while (!_streamOperation.isCancelled && [currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:distantFutureDate]) {
-				;;
-			}
+		while (!_streamOperation.isCancelled && [currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:distantFutureDate]) {
+			;;
 		}
 		
-		
-		FLINFO(@"*** STREAMS CANCELLED ***")
+		FLINFO(@"*** STREAMS CLOSED ***")
 	}
 	@catch (NSException * e) {
 		FLEXCEPTION(e)
@@ -497,8 +458,8 @@
 	@finally {
 		[pool release];
 		[self close];
-		[self dispatchDelegate:@selector(scanDidCancel:) withObject:nil];
-	}	
+		[self dispatchDelegate:@selector(scanDidFinish:) withObject:nil];
+	}
 }
 
 
@@ -553,6 +514,21 @@
 }
 
 - (void) writeCachedData {
+	// Abstract method
+	[self doesNotRecognizeSelector:_cmd];
+}
+
+- (void) startInitTimer{
+	// Abstract method
+	[self doesNotRecognizeSelector:_cmd];
+}
+
+- (void) initTimerExpired{
+	// Abstract method
+	[self doesNotRecognizeSelector:_cmd];
+}
+
+- (void) invalidateInitTimer{
 	// Abstract method
 	[self doesNotRecognizeSelector:_cmd];
 }
@@ -640,21 +616,4 @@
 	[self doesNotRecognizeSelector:_cmd];
 }
 
-
-#pragma mark -
-#pragma mark CLLocationManagerDelegate Methods
-
-- (void)locationManager:(CLLocationManager *)manager 
-	   didFailWithError:(NSError *)error {
-	
-	FLNSERROR(error)	
-}
-
-- (void)locationManager:(CLLocationManager *)manager 
-	didUpdateToLocation:(CLLocation *)newLocation 
-		   fromLocation:(CLLocation *)oldLocation {
-	
-	FLTRACE_ENTRY	
-	FLDEBUG(@"Updated to %@ from %@", [newLocation description], [oldLocation description])
-}
 @end

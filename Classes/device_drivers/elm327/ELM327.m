@@ -41,7 +41,8 @@
 
 - (id) init {
 	if (self = [super init]) {
-		_deviceType		= kScanToolDeviceTypeGoLink;
+		_deviceType		= kScanToolDeviceTypeELM327;
+		_deadmanTimer = nil;
 	}
 	
 	return self;
@@ -49,6 +50,30 @@
 
 - (NSString*) scanToolName {
 	return @"ELM327";
+}
+
+- (void) startInitTimer{
+	if (_deadmanTimer != nil) {
+		[_deadmanTimer invalidate];
+		_deadmanTimer = nil;
+	}
+	_deadmanTimer = [NSTimer scheduledTimerWithTimeInterval:INIT_TIMEOUT target:self selector:@selector(initTimerExpired) userInfo:nil repeats:NO];
+}
+
+- (void) initTimerExpired{
+	FLTRACE_ENTRY
+	[self dispatchDelegate:@selector(scanTool:didTimeoutOnCommand:) withObject:nil];
+	[_deadmanTimer invalidate];
+}
+
+- (void) invalidateInitTimer{
+	// kill deadman timer
+	if(_deadmanTimer != nil){
+		if([_deadmanTimer respondsToSelector:@selector(invalidate)]){
+			FLDEBUG("Invalidated connect timer.");
+			[_deadmanTimer invalidate];
+		}
+	}
 }
 
 #pragma mark -
@@ -89,9 +114,6 @@
 	return cmd;
 }
 
-
-
-
 - (void) initScanTool {
 	
 	FLTRACE_ENTRY
@@ -105,24 +127,39 @@
 		_initState			= ELM327_INIT_STATE_RESET;
 		_currentPIDGroup	= 0x00;
 		
-		FLDEBUG(@"_inputStream status = %08X", [_inputStream streamStatus])
-		FLDEBUG(@"_outputStream status = %08X", [_outputStream streamStatus])
+		FLDEBUG(@"_inputStream status = %08X", (unsigned int)[_inputStream streamStatus])
+		FLDEBUG(@"_outputStream status = %08X", (unsigned int)[_outputStream streamStatus])
 		
-		while ([_inputStream streamStatus] != NSStreamStatusOpen &&
-			   [_outputStream streamStatus] != NSStreamStatusOpen) {
-			;
+		if ([_inputStream streamStatus] == NSStreamStatusError) {
+			FLNSERROR([_inputStream streamError]);
+			[self cancelScan];
+			[self dispatchDelegate:@selector(scanToolDidFailToInitialize:) withObject:nil];
+
 		}
-	
-		FLINFO(@"Sending Reset")
-		// 1. connect
-		[self sendCommand:(FLScanToolCommand*)[ELM327Command commandForReset] initCommand:YES];
+		else if([_outputStream streamStatus] == NSStreamStatusError){
+			FLNSERROR([_outputStream streamError]);
+			[self cancelScan];
+			[self dispatchDelegate:@selector(scanToolDidFailToInitialize:) withObject:nil];
+		}
+		else{
+			[self startInitTimer];
+			
+			while ([_inputStream streamStatus] != NSStreamStatusOpen &&
+				   [_outputStream streamStatus] != NSStreamStatusOpen) {
+				;
+			}
+
+			FLINFO(@"Resetting connection")
+			[self sendCommand:(FLScanToolCommand*)[ELM327Command commandForReset] initCommand:YES];
+		}
 	}
 	@catch (NSException * e) {
 		FLEXCEPTION(e)
+		[self dispatchDelegate:@selector(scanToolDidFailToInitialize:) withObject:nil];
 	}
 	@finally {
 		;
-	}	
+	}
 }
 
 - (void) readInitResponse {
@@ -130,8 +167,8 @@
 	
 	@try {
 		NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - (_readBufLength-1))];
-		FLDEBUG(@"Read %d bytes", readLength)
-		FLDEBUG(@"_readBufLength = %d", _readBufLength)
+		FLDEBUG(@"Read %ld bytes", (long)readLength)
+		FLDEBUG(@"_readBufLength = %ld", (long)_readBufLength)
 		
 		if(readLength > 0) {
 			
@@ -152,7 +189,8 @@
 					_initState	= ELM327_INIT_STATE_RESET;
 					_state		= STATE_INIT;
 				}
-				else {				
+				else {
+					FLDEBUG(@"ELM327_INIT_STATE: %d", _initState)
 					switch(_initState) {
 						case ELM327_INIT_STATE_RESET:
 							if(0) {
@@ -160,16 +198,16 @@
 							}
 							else {
 								_initState <<= 1;
-								[self dispatchDelegate:@selector(scanToolDidConnect:) withObject:nil];
 							}
 							break;
 							
 						case ELM327_INIT_STATE_ECHO_OFF:
-							if(!ELM_OK(asciistr)) {
-								FLERROR(@"Error response from ELM327 during Echo Off: %@", respString)
+							if(ELM_ECHO_OFF_OK(asciistr) || ELM_ECHO_OFF_OK_1(asciistr)) {
+								FLINFO(@"Echo off");
+								_initState <<= 1;
 							}
 							else {
-								_initState <<= 1;
+								FLERROR(@"Error response from ELM327 during Echo Off: \"%s\"", MyLogString(asciistr))
 							}
 							break;
 							
@@ -196,6 +234,10 @@
 						case ELM327_INIT_STATE_PID_SEARCH:	{							
 						
 							if(ELM_ERROR(asciistr)) {
+								FLERROR(@"Error response from ELM327 during PID search (state=%d): %@", _initState, respString)
+								_initState = ELM327_INIT_STATE_RESET;
+							}
+							else if(CAN_ERROR(asciistr)){
 								FLERROR(@"Error response from ELM327 during PID search (state=%d): %@", _initState, respString)
 								_initState = ELM327_INIT_STATE_RESET;
 							}
@@ -248,14 +290,16 @@
 				
 				if(INIT_COMPLETE(_initState)) {
 					FLDEBUG(@"Init Complete", nil)
-					_initState	= ELM327_INIT_STATE_UNKNOWN;
+					_initState	= ELM327_INIT_STATE_COMPLETE;
+					_currentPIDGroup	= 0x00;
 					_state		= STATE_IDLE;
+					[self invalidateInitTimer];
 					[self dispatchDelegate:@selector(scanToolDidInitialize:) withObject:nil];
 				}
 				else {
 					[self sendCommand:[self commandForInitState:_initState] initCommand:YES];
-				}				
-			}			
+				}
+			}
 		}	
 	}
 	@catch (NSException* e) {
@@ -270,8 +314,8 @@
 	FLTRACE_ENTRY
 	@try {
 		NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - _readBufLength)];
-		FLDEBUG(@"Read %d bytes", readLength)
-		FLDEBUG(@"_readBufLength = %d", _readBufLength)
+		FLDEBUG(@"Read %ld bytes", (long)readLength)
+		FLDEBUG(@"_readBufLength = %ld", (long)_readBufLength)
 		
 		if (readLength != -1) {
 			_readBufLength += readLength;
@@ -303,9 +347,6 @@
 				
 				NSArray* responses	= [_parser parseResponse:_protocol];
 				if(responses) {
-					if(self.useLocation) {
-						[responses makeObjectsPerformSelector:@selector(updateLocation:) withObject:self.currentLocation];
-					}					
 					[self dispatchDelegate:@selector(scanTool:didReceiveResponse:) withObject:responses];
 				}
 				else {
@@ -338,7 +379,7 @@
 	FLTRACE_ENTRY
 	@try {
 		NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - _readBufLength)];
-		FLDEBUG(@"Read %d bytes", readLength)
+		FLDEBUG(@"Read %ld bytes", (long)readLength)
 		_readBufLength += readLength;
 		
 		if(ELM_READ_COMPLETE(_readBuf, (_readBufLength-1))) {
@@ -384,7 +425,6 @@
 #pragma mark NSStream Event Handling Methods
 
 - (void)stream:(NSStream*)stream handleEvent:(NSStreamEvent)eventCode {
-	
 	if(stream == _inputStream) {
 		[self handleInputEvent:eventCode];
 	}
@@ -403,16 +443,16 @@
 	if(_inputStream) {
 		switch (eventCode) {
 			case NSStreamEventNone:
-				FLINFO(@"NSStreamEventNone")
+				FLDEBUG(@"NSStreamEventNone")
 				break;
 				
 			case NSStreamEventOpenCompleted:
-				FLINFO(@"NSStreamEventOpenCompleted")
+				FLDEBUG(@"NSStreamEventOpenCompleted")
 				
 				break;
 				
 			case NSStreamEventHasBytesAvailable:
-				FLINFO(@"NSStreamEventHasBytesAvailable")
+				FLDEBUG(@"NSStreamEventHasBytesAvailable")
 				
 				if(STATE_INIT()) {
 					[self readInitResponse];
@@ -444,12 +484,12 @@
 				
 				
 			case NSStreamEventEndEncountered:
-				FLINFO(@"NSStreamEventEndEncountered")
+				FLDEBUG(@"NSStreamEventEndEncountered")
 				break;
 				
 				// we don't write to input stream, so ignore this event
 			case NSStreamEventHasSpaceAvailable:
-				FLINFO(@"NSStreamEventHasSpaceAvailable")
+				//FLINFO(@"NSStreamEventHasSpaceAvailable")
 			default:
 				break;
 		}
@@ -463,15 +503,15 @@
 	if(_outputStream) {
 		switch (eventCode) {
 			case NSStreamEventNone:
-				FLINFO(@"NSStreamEventNone")
+				FLDEBUG(@"NSStreamEventNone")
 				break;
 				
 			case NSStreamEventOpenCompleted:
-				FLINFO(@"NSStreamEventOpenCompleted")
+				FLDEBUG(@"NSStreamEventOpenCompleted")
 				break;
 				
 			case NSStreamEventHasBytesAvailable:
-				FLINFO(@"NSStreamEventHasBytesAvailable")
+				FLDEBUG(@"NSStreamEventHasBytesAvailable")
 				break;
 				
 			case NSStreamEventErrorOccurred:
@@ -481,11 +521,11 @@
 				break;
 				
 			case NSStreamEventEndEncountered:
-				FLINFO(@"NSStreamEventEndEncountered")
+				FLDEBUG(@"NSStreamEventEndEncountered")
 				break;
 				
 			case NSStreamEventHasSpaceAvailable:
-				FLINFO(@"NSStreamEventHasSpaceAvailable")
+				FLDEBUG(@"NSStreamEventHasSpaceAvailable")
 				// Send whatever we have on hand
 				[self writeCachedData];
 				break;

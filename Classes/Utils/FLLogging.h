@@ -20,7 +20,10 @@
 
 
 #define VERBOSE_DEBUG			1
-//#undef VERBOSE_DEBUG
+#undef VERBOSE_DEBUG
+
+#define VERBOSE_INFO			1
+//#undef VERBOSE_INFO
 
 #define CONCAT(s1, s2) s1 s2
 
@@ -53,7 +56,7 @@
 /*
  Informational Message
  */
-#ifdef VERBOSE_DEBUG
+#ifdef VERBOSE_INFO
 #	define FLINFO(msg) FLTRACE(@CONCAT("[INFO] %s (%d): ", msg), __PRETTY_FUNCTION__, __LINE__)
 #else
 #	define FLINFO(msg)
@@ -80,10 +83,10 @@
  NSError trace
  */
 #define FLNSERROR(err) if(err) {						\
-	FLTRACE(@"[NSError] %s (%d): (%d:%@) Reason: %@",	\
+	FLTRACE(@"[NSError] %s (%ld): (%ld:%@) Reason: %@",	\
 		__PRETTY_FUNCTION__,							\
-		__LINE__,										\
-		err.code,										\
+		(long)__LINE__,									\
+		(long)err.code,									\
 		err.domain,										\
 		err.localizedDescription)						\
 }
@@ -99,4 +102,59 @@
 		e.name,											\
 		e.reason,										\
 		e.userInfo)										\
+}
+
+static char *MyLogString(char *str)
+{
+    static char     buf[2048];
+    char            *ptr = buf;
+    int             i;
+	
+    *ptr = '\0';
+	
+    while (*str)
+    {
+        if (isprint(*str))
+        {
+            *ptr++ = *str++;
+        }
+        else {
+            switch(*str)
+            {
+				case ' ':
+					*ptr++ = *str;
+					break;
+					
+				case 27:
+					*ptr++ = '\\';
+					*ptr++ = 'e';
+					break;
+					
+				case '\t':
+					*ptr++ = '\\';
+					*ptr++ = 't';
+					break;
+					
+				case '\n':
+					*ptr++ = '\\';
+					*ptr++ = 'n';
+					break;
+					
+				case '\r':
+					*ptr++ = '\\';
+					*ptr++ = 'r';
+					break;
+					
+				default:
+					i = *str;
+					(void)sprintf(ptr, "\\%03o", i);
+					ptr += 4;
+					break;
+            }
+			
+            str++;
+        }
+        *ptr = '\0';
+    }
+    return buf;
 }

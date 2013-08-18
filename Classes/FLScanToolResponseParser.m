@@ -49,10 +49,4 @@
 	}
 }
 
-
-- (BOOL) resolveLocation {
-	// TODO: Read value from settings
-	return YES;
-}
-
 @end

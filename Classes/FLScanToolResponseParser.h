@@ -54,12 +54,9 @@ typedef struct can_29bit_response_t {
 
 
 @interface FLScanToolResponseParser : NSObject {
-	BOOL					resolveLocation;
 	uint8_t*				_bytes;
 	NSInteger				_length;
 }
-
-@property (nonatomic, assign, readonly) BOOL resolveLocation;
 
 - initWithBytes:(uint8_t*)bytes length:(NSUInteger)length;
 

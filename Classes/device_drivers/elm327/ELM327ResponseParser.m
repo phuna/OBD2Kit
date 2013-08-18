@@ -19,13 +19,13 @@
  */
 
 #import "ELM327ResponseParser.h"
-#import <CoreLocation/CoreLocation.h>
 #import "FLLogging.h"
 
 NSString *const kATError						= @"?";
 NSString *const kResponseFinished				= @">";
 NSString *const kOK								= @"OK";
 NSString *const kNoData							= @"NO DATA";
+NSString *const kUnableToConnect				= @"UNABLE TO CONNECT";
 
 @implementation ELM327ResponseParser
 
@@ -33,6 +33,7 @@ NSString *const kNoData							= @"NO DATA";
 - (NSString*) stringForResponse {
 	/*
 	const char* test = "41 00 90 18 80 00 \r41 00 BF 9F F9 91 ";
+	 41 00 BE 3E F8 10
 	return [NSString stringWithCString:test encoding:NSASCIIStringEncoding];
 	*/
 	return [NSString stringWithCString:(const char*)_bytes encoding:NSASCIIStringEncoding];
@@ -62,10 +63,6 @@ NSString *const kNoData							= @"NO DATA";
 		resp.data				= [NSData dataWithBytes:&data[dataIndex] length:(length-dataIndex)];
 	}
 	
-	if(self.resolveLocation) {
-		//CLLocationManager* locationManager = [CLLocationManager description
-	}
-	
 	return [resp autorelease];
 }
 
@@ -87,7 +84,8 @@ NSString *const kNoData							= @"NO DATA";
 	 
 	 */
 	
-	
+	//41 00 BE 3E F8 10
+
 	// Chop off the trailing space, if it's there
 	if(_bytes[_length-1] == 0x20) {
 		_bytes[_length-1] = 0x00;
@@ -96,8 +94,15 @@ NSString *const kNoData							= @"NO DATA";
 	
 	char* asciistr						= (char*)_bytes;	
 	
+//	if(ELM_UNABLE_TO_CONNECT(asciistr)){
+//		FLERROR(@"Error: %s", asciistr)
+//	}
+//	else if(ELM_OK(asciistr))
+//		FLINFO(@"OK")
+//	else if(ELM_ECHO_OFF_OK(asciistr))
+//		FLINFO(@"Echo off")
+//	else if(!ELM_ERROR(asciistr) && ELM_DATA_RESPONSE(asciistr)) {
 	if(!ELM_ERROR(asciistr) && ELM_DATA_RESPONSE(asciistr)) {
-		
 		// There may be more than one response, if multiple ECUs responded to
 		// a particular query, so split on the '\r' boundary
 		NSArray* responseComponents		= [[self stringForResponse] componentsSeparatedByString:@"\r"];
@@ -127,7 +132,7 @@ NSString *const kNoData							= @"NO DATA";
 			// easier processing
 			while(*respCString != '\0' && _decodeBufLength < sizeof(_decodeBuf)) {				
 				_decodeBuf[_decodeBufLength++] = (uint8_t)strtoul(respCString, (char**)&respCString, 16);				
-				FLDEBUG(@"_decodeBuf[%d]: %02x", _decodeBufLength, _decodeBuf[_decodeBufLength-1])
+				FLDEBUG(@"_decodeBuf[%ld]: %02x", (long)_decodeBufLength, _decodeBuf[_decodeBufLength-1])
 			}
 			
 			if(!responseArray) {
@@ -137,8 +142,15 @@ NSString *const kNoData							= @"NO DATA";
 			[responseArray addObject:[self decodeResponseData:_decodeBuf ofLength:_decodeBufLength forProtocol:protocol]];
 		}	
 	}
+	else if(ELM_UNABLE_TO_CONNECT(asciistr)){
+		FLERROR(@"Error: %s", asciistr)
+	}
+	else if(ELM_OK(asciistr))
+		FLINFO(@"OK")
+	else if(ELM_ECHO_OFF_OK(asciistr))
+		FLINFO(@"Echo off")
 	else {
-		FLERROR(@"Error in parse string or non-data response: %s", asciistr)
+		FLERROR(@"Error in parse string or non-data response: \"%s\"", MyLogString(asciistr))
 	}
 	
 	return (NSArray*)[responseArray autorelease];

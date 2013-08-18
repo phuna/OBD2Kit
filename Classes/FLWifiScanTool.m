@@ -128,7 +128,7 @@
 	NSStreamStatus oStreamStatus	= NSStreamStatusError;
 	NSInteger bytesWritten			= 0;
 	
-	FLDEBUG(@"[_cachedWriteData length] = %d", [_cachedWriteData length])
+	FLDEBUG(@"[_cachedWriteData length] = %lu", (unsigned long)[_cachedWriteData length])
 	
     while ([oStream hasSpaceAvailable] && 
 		   [_cachedWriteData length] > 0) {
@@ -142,7 +142,7 @@
 			break;
 		}
 		else if(bytesWritten > 0 && [_cachedWriteData length] > 0) {
-			FLDEBUG(@"Wrote %d bytes", bytesWritten)
+			FLDEBUG(@"Wrote %lu bytes", (unsigned long)bytesWritten)
 			[_cachedWriteData replaceBytesInRange:NSMakeRange(0, bytesWritten) 
 										withBytes:NULL 
 										   length:0];
@@ -150,7 +150,7 @@
 	}
 	
 	oStreamStatus = [oStream streamStatus];
-	FLDEBUG(@"OutputStream status = %X", oStreamStatus)
+	FLDEBUG(@"OutputStream status = %X", (unsigned int)oStreamStatus)
 	FLINFO(@"Starting write wait")
 	do {		
 		oStreamStatus = [oStream streamStatus];

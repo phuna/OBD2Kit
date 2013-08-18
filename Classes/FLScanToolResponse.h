@@ -19,7 +19,6 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <CoreLocation/CoreLocation.h>
 
 typedef struct pid_support_map_t {
 
@@ -89,12 +88,6 @@ typedef struct pid_support_map_t {
 	NSUInteger				_pid;
 	NSUInteger				_crc;	
 
-	double					_latitude;
-	double					_longitude;
-	double					_altitude;
-	double					_locationHorizontalAccuracy;
-	double					_locationVerticalAccuracy;
-	double					_gpsSpeed;
 }
 
 @property (nonatomic, retain) NSString* scanToolName;
@@ -110,15 +103,8 @@ typedef struct pid_support_map_t {
 @property (nonatomic, assign) NSUInteger pid;
 @property (nonatomic, assign) NSUInteger crc;
 @property (nonatomic, retain) NSData* data;
-@property (nonatomic, assign) double latitude;
-@property (nonatomic, assign) double longitude;
-@property (nonatomic, assign) double altitude;
-@property (nonatomic, assign) double horizontalAccuracy;
-@property (nonatomic, assign) double verticalAccuracy;
-@property (nonatomic, assign) double gpsSpeed;
 
 
-- (void) updateLocation:(CLLocation*)location;
 - (id) proxyForJson;
 
 @end
