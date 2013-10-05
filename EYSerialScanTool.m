@@ -26,50 +26,58 @@
 	[self dispatchDelegate:@selector(scanDidStart:) withObject:nil];
 	@try {
 		_inputStream = [NSInputStream inputStreamWithFileAtPath:self.modemPath];
-		_outputStream = [NSOutputStream outputStreamToFileAtPath:self.modemPath append:YES];
 		
-		if((_inputStream != nil) && (_outputStream != nil)) {
-			FLDEBUG(@"Streams initialized with path:%@", self.modemPath)
+		if(_inputStream != nil) {
+			FLDEBUG(@"Input stream initialized with path:%@", self.modemPath)
 			[_inputStream retain];
 			[_inputStream setDelegate:self];
 			[_inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 			[_inputStream open];
-			
-			[_outputStream retain];
-			[_outputStream setDelegate:self];
-			[_outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
-			[_outputStream open];
-			
-			if(_inputStream.streamStatus == NSStreamStatusOpen && _outputStream.streamStatus == NSStreamStatusOpen){
-				[self dispatchDelegate:@selector(scanToolDidConnect:) withObject:nil];
+						
+			if(_inputStream.streamStatus == NSStreamStatusOpen){
+				_outputStream = [NSOutputStream outputStreamToFileAtPath:self.modemPath append:YES];
+				if(_outputStream != nil){
+					FLDEBUG(@"Output stream initialized with path:%@", self.modemPath)
+					[_outputStream retain];
+					[_outputStream setDelegate:self];
+					[_outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
+					[_outputStream open];
+					
+					if(_outputStream.streamStatus == NSStreamStatusOpen){
+						[self dispatchDelegate:@selector(scanToolDidConnect:) withObject:nil];
+						return;
+					}
+				}
 			}
-			else{
-				[self dispatchDelegate:@selector(scanToolDidFailToInitialize:) withObject:nil];
-			}
-			
 		}
-		else{
-			if(!_inputStream){
-				if([_inputStream streamError])
-					FLNSERROR([_inputStream streamError]);
-			}
-			else if(!_outputStream){
-				if([_outputStream streamError])
-					FLNSERROR([_outputStream streamError]);
-			}
-			[self dispatchDelegate:@selector(scanToolDidFailToInitialize:) withObject:nil];
-		}
+		[self dispatchDelegate:@selector(scanToolDidFailToInitialize:) withObject:nil];
 	}
 	@catch (NSException * e) {
 		FLEXCEPTION(e);
 	}
+	FLTRACE_EXIT
 }
 
 
 - (void) close {
 	FLTRACE_ENTRY
 	@try {
-		[self closeSession];
+		FLINFO(@"-------------------------------------------->>>> CLOSING SERIALSESSION");
+		if (_inputStream) {
+			[_inputStream close];
+			[_inputStream removeFromRunLoop:[NSRunLoop currentRunLoop]
+									forMode:NSDefaultRunLoopMode];
+			[_inputStream release];
+			_inputStream = nil;
+		}
+		
+		if (_outputStream) {
+			[_outputStream close];
+			[_outputStream removeFromRunLoop:[NSRunLoop currentRunLoop]
+									 forMode:NSDefaultRunLoopMode];
+			[_outputStream release];
+			_outputStream = nil;
+		}
 	}
 	@catch (NSException * e) {
 		FLEXCEPTION(e);
@@ -77,23 +85,6 @@
 	@finally {
 		_state = STATE_INIT;
 	}
-}
-
-- (void) closeSession {
-	FLDEBUG(@"-------------------------------------------->>>> CLOSING SERIALSESSION")
-	
-	[_inputStream close];
-    [_inputStream removeFromRunLoop:[NSRunLoop currentRunLoop]
-									  forMode:NSDefaultRunLoopMode];
-    [_inputStream release];
-	_inputStream = nil;
-    
-	[_outputStream close];
-    [_outputStream removeFromRunLoop:[NSRunLoop currentRunLoop]
-									   forMode:NSDefaultRunLoopMode];
-    [_outputStream release];
-	_outputStream = nil;
-	
 }
 
 - (void) sendCommand:(FLScanToolCommand*)command initCommand:(BOOL)initCommand {
@@ -157,7 +148,7 @@
 	
 	oStreamStatus = [oStream streamStatus];
 	FLDEBUG(@"OutputStream status = %X", (unsigned int)oStreamStatus)
-	FLDEBUG(@"Starting write wait")
+	FLINFO(@"Starting write wait")
 	do {
 		oStreamStatus = [oStream streamStatus];
 	} while (oStreamStatus == NSStreamStatusWriting);

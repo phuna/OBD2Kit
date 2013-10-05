@@ -58,6 +58,7 @@
 		_deadmanTimer = nil;
 	}
 	_deadmanTimer = [NSTimer scheduledTimerWithTimeInterval:INIT_TIMEOUT target:self selector:@selector(initTimerExpired) userInfo:nil repeats:NO];
+	FLINFO(@"STARTED INIT TIMER")
 }
 
 - (void) initTimerExpired{
@@ -70,7 +71,7 @@
 	// kill deadman timer
 	if(_deadmanTimer != nil){
 		if([_deadmanTimer respondsToSelector:@selector(invalidate)]){
-			FLDEBUG("Invalidated connect timer.");
+			FLINFO(@"STOPPED INIT TIMER")
 			[_deadmanTimer invalidate];
 		}
 	}
@@ -105,7 +106,16 @@
 															  pid:_currentPIDGroup 
 															 data:nil];
 			break;
-		
+		case ELM327_INIT_STATE_CODES:
+			cmd = (FLScanToolCommand*)[ELM327Command commandForOBD2:kScanToolModeRequestEmissionRelatedDiagnosticTroubleCodes
+																pid:-1
+															   data:nil];
+			break;
+		case ELM327_INIT_STATE_CODES_PENDING:
+			cmd = (FLScanToolCommand*)[ELM327Command commandForOBD2:kScanToolModeRequestEmissionRelatedDiagnosticTroubleCodesDetected
+																pid:-1
+															   data:nil];
+			break;
 		case ELM327_INIT_STATE_UNKNOWN:
 		default:
 			break;
@@ -131,15 +141,15 @@
 		FLDEBUG(@"_outputStream status = %08X", (unsigned int)[_outputStream streamStatus])
 		
 		if ([_inputStream streamStatus] == NSStreamStatusError) {
-			FLNSERROR([_inputStream streamError]);
+			FLNSERROR([_inputStream streamError])
 			[self cancelScan];
-			[self dispatchDelegate:@selector(scanToolDidFailToInitialize:) withObject:nil];
+			//[self dispatchDelegate:@selector(scanToolDidFailToInitialize:) withObject:nil];
 
 		}
 		else if([_outputStream streamStatus] == NSStreamStatusError){
-			FLNSERROR([_outputStream streamError]);
+			FLNSERROR([_outputStream streamError])
 			[self cancelScan];
-			[self dispatchDelegate:@selector(scanToolDidFailToInitialize:) withObject:nil];
+			//[self dispatchDelegate:@selector(scanToolDidFailToInitialize:) withObject:nil];
 		}
 		else{
 			[self startInitTimer];
@@ -185,7 +195,7 @@
 				NSString* respString	= [NSString stringWithCString:(const char*)_readBuf encoding:NSASCIIStringEncoding];
 				
 				if(ELM_ERROR(asciistr)) {
-					FLERROR(@"Error response from ELM327 (state=%d): %@", _initState, respString)
+					FLERROR(@"Error response from ELM327 (state=%d): %@", _initState, respString);
 					_initState	= ELM327_INIT_STATE_RESET;
 					_state		= STATE_INIT;
 				}
@@ -194,7 +204,7 @@
 					switch(_initState) {
 						case ELM327_INIT_STATE_RESET:
 							if(0) {
-								FLERROR(@"Error response from ELM327 during Reset: %@", respString)
+								FLERROR(@"Error response from ELM327 during Reset: %@", respString);
 							}
 							else {
 								_initState <<= 1;
@@ -277,6 +287,18 @@
 									}								
 								}
 							}
+						}
+							break;
+							
+						case ELM327_INIT_STATE_CODES:	{
+							_initState <<= 1;
+
+						}
+							break;
+							
+						case ELM327_INIT_STATE_CODES_PENDING:	{
+							_initState <<= 1;
+							
 						}
 							break;
 							
@@ -443,16 +465,16 @@
 	if(_inputStream) {
 		switch (eventCode) {
 			case NSStreamEventNone:
-				FLDEBUG(@"NSStreamEventNone")
+				FLDEBUG(@"%@: NSStreamEventNone", _inputStream)
 				break;
 				
 			case NSStreamEventOpenCompleted:
-				FLDEBUG(@"NSStreamEventOpenCompleted")
+				FLDEBUG(@"%@: NSStreamEventOpenCompleted", _inputStream)
 				
 				break;
 				
 			case NSStreamEventHasBytesAvailable:
-				FLDEBUG(@"NSStreamEventHasBytesAvailable")
+				FLDEBUG(@"%@: NSStreamEventHasBytesAvailable", _inputStream)
 				
 				if(STATE_INIT()) {
 					[self readInitResponse];
@@ -484,7 +506,7 @@
 				
 				
 			case NSStreamEventEndEncountered:
-				FLDEBUG(@"NSStreamEventEndEncountered")
+				FLDEBUG(@"%@: NSStreamEventEndEncountered", _inputStream)
 				break;
 				
 				// we don't write to input stream, so ignore this event
@@ -503,29 +525,29 @@
 	if(_outputStream) {
 		switch (eventCode) {
 			case NSStreamEventNone:
-				FLDEBUG(@"NSStreamEventNone")
+				FLDEBUG(@"%@: NSStreamEventNone", _outputStream)
 				break;
 				
 			case NSStreamEventOpenCompleted:
-				FLDEBUG(@"NSStreamEventOpenCompleted")
+				FLDEBUG(@"%@: NSStreamEventOpenCompleted", _outputStream)
 				break;
 				
 			case NSStreamEventHasBytesAvailable:
-				FLDEBUG(@"NSStreamEventHasBytesAvailable")
+				FLDEBUG(@"%@: NSStreamEventHasBytesAvailable", _outputStream)
 				break;
 				
 			case NSStreamEventErrorOccurred:
-				FLERROR(@"NSStreamEventErrorOccurred", nil)
+				FLERROR(@"NSStreamEventErrorOccurred", nil);
 				NSError* error = [_outputStream streamError];				
-				FLNSERROR(error)
+				FLNSERROR(error);
 				break;
 				
 			case NSStreamEventEndEncountered:
-				FLDEBUG(@"NSStreamEventEndEncountered")
+				FLDEBUG(@"%@: NSStreamEventEndEncountered", _outputStream);
 				break;
 				
 			case NSStreamEventHasSpaceAvailable:
-				FLDEBUG(@"NSStreamEventHasSpaceAvailable")
+				FLDEBUG(@"%@: NSStreamEventHasSpaceAvailable", _outputStream)
 				// Send whatever we have on hand
 				[self writeCachedData];
 				break;

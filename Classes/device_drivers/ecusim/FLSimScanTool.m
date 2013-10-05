@@ -26,7 +26,7 @@
 
 - (void) initScanTool {
 	
-	FLINFO(@"*** Initializing Simulated ScanTool ***")
+	FLINFO(@"*** Initializing Simulated ScanTool ***");
 	_state				= STATE_IDLE;
 	
 	_supportedSensorList = [[NSMutableArray alloc] initWithCapacity:2];

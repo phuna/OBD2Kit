@@ -145,12 +145,14 @@ NSString *const kUnableToConnect				= @"UNABLE TO CONNECT";
 	else if(ELM_UNABLE_TO_CONNECT(asciistr)){
 		FLERROR(@"Error: %s", asciistr)
 	}
+#ifdef VERBOSE_INFO
 	else if(ELM_OK(asciistr))
 		FLINFO(@"OK")
 	else if(ELM_ECHO_OFF_OK(asciistr))
 		FLINFO(@"Echo off")
+#endif
 	else {
-		FLERROR(@"Error in parse string or non-data response: \"%s\"", MyLogString(asciistr))
+		FLERROR(@"Error in parse string or non-data response: \"%s\"", MyLogString(asciistr));
 	}
 	
 	return (NSArray*)[responseArray autorelease];

@@ -18,9 +18,8 @@
  *
  */
 
-
 #define VERBOSE_DEBUG			1
-#undef VERBOSE_DEBUG
+//#undef VERBOSE_DEBUG
 
 #define VERBOSE_INFO			1
 //#undef VERBOSE_INFO
@@ -30,7 +29,13 @@
 /*
  Trace Macro
  */
-#define FLTRACE(...) NSLog(__VA_ARGS__);
+#ifdef VERBOSE_DEBUG
+#	define FLTRACE(...) NSLog(__VA_ARGS__);
+#elif VERBOSE_INFO
+#	define FLTRACE(...) NSLog(__VA_ARGS__);
+#else
+#	define FLTRACE
+#endif
 
 
 /*
