@@ -26,7 +26,7 @@
 	GoLinkRequestFrame	_requestFrame;
 }
 
-- (void) setRequestFrame:(GoLinkRequestFrame*)request;
+- (void)setRequestFrame:(GoLinkRequestFrame*)request;
 
 + (GoLinkCommand*) commandForReadProtocol;
 

@@ -42,7 +42,7 @@
 }
 
 
-- (void) setBytes:(uint8_t*)bytes length:(NSInteger)length {
+- (void)setBytes:(uint8_t*)bytes length:(NSInteger)length {
 	if(bytes) {
 		_bytes = bytes;
 		_length= length;

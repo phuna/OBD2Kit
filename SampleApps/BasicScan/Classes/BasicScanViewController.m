@@ -19,88 +19,27 @@
  */
 
 #import "BasicScanViewController.h"
+
 #import "FLLogging.h"
 #import "FLECUSensor.h"
+#import "ELM327.h"
 
-@interface BasicScanViewController(Private)
-- (void) scan;
-- (void) stopScan;
+@interface BasicScanViewController ()
+
+@property (nonatomic, strong) ELM327 *scanTool;
+
 @end
 
-
-#pragma mark -
 @implementation BasicScanViewController
 
-@synthesize statusLabel;
-@synthesize scanToolNameLabel;
-@synthesize rpmLabel;
-@synthesize speedLabel;
-
-
-/*
-// The designated initializer. Override to perform setup that is required before the view is loaded.
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
-*/
-
-/*
-// Implement loadView to create a view hierarchy programmatically, without using a nib.
-- (void)loadView {
-}
-*/
-
-
-/*
-// Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
-- (void)viewDidLoad {
-    [super viewDidLoad];
-}
-*/
-
-- (void) viewDidAppear:(BOOL)animated {
+- (void)viewDidAppear:(BOOL)animated {
 	[super viewDidAppear:animated];
 	[self scan];
 }
 
-- (void) viewWillDisappear:(BOOL)animated {
+- (void)viewWillDisappear:(BOOL)animated {
 	[super viewWillDisappear:animated];
 	[self stopScan];
-}
-
-
-/*
-// Override to allow orientations other than the default portrait orientation.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
-}
-*/
-
-- (void)didReceiveMemoryWarning {
-	// Releases the view if it doesn't have a superview.
-    [super didReceiveMemoryWarning];
-	
-	// Release any cached data, images, etc that aren't in use.
-}
-
-- (void)viewDidUnload {
-	// Release any retained subviews of the main view.
-	// e.g. self.myOutlet = nil;
-}
-
-
-- (void)dealloc {
-	[_scanTool release];
-	[statusLabel release];
-	[scanToolNameLabel release];
-	[rpmLabel release];
-	[speedLabel release];
-    [super dealloc];
 }
 
 #pragma mark -
@@ -133,26 +72,9 @@
 
 - (void)scanToolDidFailToInitialize:(FLScanTool*)scanTool {
 	FLINFO(@"SCANTOOL INITIALIZATION FAILURE")
-	FLDEBUG(@"scanTool.scanToolState: %@", scanTool.scanToolState)
+	FLDEBUG(@"scanTool.scanToolState: %u", scanTool.scanToolState)
 	FLDEBUG(@"scanTool.supportedSensors count: %d", [scanTool.supportedSensors count])
 }
-
-
-- (void)scanToolDidInitialize:(FLScanTool*)scanTool {
-	FLINFO(@"SCANTOOL INITIALIZATION COMPLETE")
-	FLDEBUG(@"scanTool.scanToolState: %08X", scanTool.scanToolState)
-	FLDEBUG(@"scanTool.supportedSensors count: %d", [scanTool.supportedSensors count])
-	
-	statusLabel.text			= @"Scanning...";
-	
-	[_scanTool setSensorScanTargets:[NSArray arrayWithObjects:
-									 [NSNumber numberWithInt:0x0C], // Engine RPM
-									 [NSNumber numberWithInt:0x0D], // Vehicle Speed
-									 nil]];
-	
-	scanToolNameLabel.text	= _scanTool.scanToolName;
-}
-
 
 - (void)scanTool:(FLScanTool*)scanTool didSendCommand:(FLScanToolCommand*)command {
 	FLINFO(@"DID SEND COMMAND")
@@ -161,7 +83,6 @@
 
 - (void)scanTool:(FLScanTool*)scanTool didReceiveResponse:(NSArray*)responses {
 	FLINFO(@"DID RECEIVE RESPONSE")
-	[responses retain];	
 	
 	FLECUSensor* sensor	=	nil;
 	
@@ -172,17 +93,22 @@
 		
 		if (response.pid == 0x0C) {
 			// Update RPM Display
-			rpmLabel.text	= [NSString stringWithFormat:@"%@ %@", [sensor valueStringForMeasurement1:NO], [sensor imperialUnitString]];
-			[rpmLabel setNeedsDisplay];
-		}
-		else if(response.pid == 0x0D) {
+			self.rpmLabel.text	= [NSString stringWithFormat:@"%@ %@", [sensor valueStringForMeasurement1:NO], [sensor imperialUnitString]];
+			[self.rpmLabel setNeedsDisplay];
+		} else if(response.pid == 0x0D) {
 			// Update Speed Display
-			speedLabel.text	= [NSString stringWithFormat:@"%@ %@", [sensor valueStringForMeasurement1:NO], [sensor imperialUnitString]];
-			[speedLabel setNeedsDisplay];
+			self.speedLabel.text	= [NSString stringWithFormat:@"%@ %@", [sensor valueStringForMeasurement1:NO], [sensor imperialUnitString]];
+			[self.speedLabel setNeedsDisplay];
 		}
+        
+        NSLog(@"%@", sensor);
+//        
+//        NSString *d = [[sensor descriptionStringForMeasurement1] stringByReplacingOccurrencesOfString:@" " withString:@""];
+//        NSString *v = [[NSString stringWithFormat:@"%02x",  (unsigned int) response.pid] uppercaseString];
+//        NSString *string = [NSString stringWithFormat:@"OBD2Sensor%@ = 0x%@,\n", d,  v];
+//        
+//        printf("%s", [string UTF8String]);
 	}
-	
-	[responses release];
 }
 
 
@@ -204,35 +130,35 @@
 #pragma mark -
 #pragma mark Private Methods
 
-- (void) scan {
+- (void)scan
+{
+	[self.statusLabel setText:@"Initializing..."];
 	
-	statusLabel.text			= @"Initializing...";
-	
-	[_scanTool release];
-	
-	_scanTool					= [FLScanTool scanToolForDeviceType:kScanToolDeviceTypeELM327];
-	[_scanTool retain];
-	
-	_scanTool.useLocation		= YES;
-	_scanTool.delegate			= self;
-	
-	if(_scanTool.isWifiScanTool ) {
-		// These are the settings for the PLX Kiwi WiFI, your Scan Tool may
-		// require different.
-		[_scanTool setHost:@"192.168.0.10"];
-		[_scanTool setPort:35000];
-	}
-	
-	[_scanTool startScan];
+    ELM327 *scanTool = [ELM327 scanToolWithHost:@"192.168.0.6" andPort:35000];
+	[scanTool setUseLocation:YES];
+    [scanTool setDelegate:self];
+    [scanTool startScanWithSensors:^NSArray *{
+        [self.statusLabel setText:@"Scanning..."];
+        [self.scanToolNameLabel setText:scanTool.scanToolName];
+        
+        return @[@(OBD2SensorDistanceTraveledSinceCodesCleared)];
+//        return @[@(0x12), @(0x13)];
+//        return [NSArray arrayWithObjects:
+//                [NSNumber numberWithInt:0x0C], // Engine RPM
+//                [NSNumber numberWithInt:0x0D], // Vehicle Speed
+//                [NSNumber numberWithInt:0x11],
+//                nil];
+    }];
+
+    [self setScanTool:scanTool];
 }
 
-- (void) stopScan {
-	if(_scanTool.isWifiScanTool) {
-		[_scanTool cancelScan];
-	}
-	
-	_scanTool.sensorScanTargets		= nil;
-	_scanTool.delegate				= nil;
+- (void)stopScan {
+
+    ELM327 *scanTool = self.scanTool;
+    [scanTool cancelScan];
+	[scanTool setSensorScanTargets:nil];
+	[scanTool setDelegate:nil];
 }
 
 @end

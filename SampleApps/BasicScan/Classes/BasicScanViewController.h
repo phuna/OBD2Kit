@@ -22,15 +22,7 @@
 #import "FLScanTool.h"
 
 
-@interface BasicScanViewController : UIViewController <FLScanToolDelegate> {
-	FLScanTool*			_scanTool;
-	
-	
-	UILabel*			statusLabel;
-	UILabel*			scanToolNameLabel;
-	UILabel*			rpmLabel;
-	UILabel*			speedLabel;
-}
+@interface BasicScanViewController : UIViewController <FLScanToolDelegate>
 
 @property (nonatomic, retain) IBOutlet UILabel* statusLabel;
 @property (nonatomic, retain) IBOutlet UILabel* scanToolNameLabel;

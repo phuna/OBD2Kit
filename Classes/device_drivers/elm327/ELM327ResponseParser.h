@@ -48,6 +48,6 @@ extern NSString *const kNoData;
 	NSInteger						_decodeBufLength;
 }
 
-- (NSString*) stringForResponse;
+- (NSString*)stringForResponse;
 
 @end

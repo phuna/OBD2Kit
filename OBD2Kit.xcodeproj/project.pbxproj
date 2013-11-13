@@ -48,6 +48,7 @@
 		29AB07E712F876DD0073262E /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29AB07E612F876DD0073262E /* CFNetwork.framework */; };
 		29AB07EB12F877360073262E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29AB07EA12F877360073262E /* CoreFoundation.framework */; };
 		29AB081112F879FD0073262E /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29AB081012F879FD0073262E /* CoreLocation.framework */; };
+		4E16FC6A1833A8B100245F51 /* FLScanTool_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 4E16FC691833A8B100245F51 /* FLScanTool_Private.h */; };
 		AA747D9F0F9514B9006C5449 /* OBD2Kit_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = AA747D9E0F9514B9006C5449 /* OBD2Kit_Prefix.pch */; };
 		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
 /* End PBXBuildFile section */
@@ -94,6 +95,8 @@
 		29AB07E612F876DD0073262E /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
 		29AB07EA12F877360073262E /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		29AB081012F879FD0073262E /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		4E16FC691833A8B100245F51 /* FLScanTool_Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FLScanTool_Private.h; path = Classes/FLScanTool_Private.h; sourceTree = "<group>"; };
+		4E16FC6B1833AAD700245F51 /* OBD2Sensors.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = OBD2Sensors.h; path = Classes/OBD2Sensors.h; sourceTree = "<group>"; };
 		AA747D9E0F9514B9006C5449 /* OBD2Kit_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OBD2Kit_Prefix.pch; sourceTree = SOURCE_ROOT; };
 		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D2AAC07E0554694100DB518D /* libOBD2Kit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libOBD2Kit.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -156,6 +159,7 @@
 				29AB07DB12F869470073262E /* FLScanToolController.h */,
 				29AB07DC12F869470073262E /* FLScanToolController.m */,
 				29AB06AE12F863870073262E /* FLScanTool.h */,
+				4E16FC691833A8B100245F51 /* FLScanTool_Private.h */,
 				29AB06AF12F863870073262E /* FLScanTool.m */,
 				29AB06B012F863870073262E /* FLScanToolCommand.h */,
 				29AB06B112F863870073262E /* FLScanToolCommand.m */,
@@ -163,6 +167,7 @@
 				29AB06B312F863870073262E /* FLScanToolResponse.m */,
 				29AB06B612F863870073262E /* FLScanToolResponseParser.h */,
 				29AB06B712F863870073262E /* FLScanToolResponseParser.m */,
+				4E16FC6B1833AAD700245F51 /* OBD2Sensors.h */,
 				29AB06B812F863870073262E /* FLECUSensor.h */,
 				29AB06B912F863870073262E /* FLECUSensor.m */,
 			);
@@ -280,6 +285,7 @@
 				29AB06DC12F863870073262E /* FLScanToolResponse.h in Headers */,
 				29AB06E012F863870073262E /* FLScanToolResponseParser.h in Headers */,
 				29AB06E212F863870073262E /* FLECUSensor.h in Headers */,
+				4E16FC6A1833A8B100245F51 /* FLScanTool_Private.h in Headers */,
 				29AB06E612F863870073262E /* FLWifiScanTool.h in Headers */,
 				29AB075412F865A00073262E /* NSStreamAdditions.h in Headers */,
 				29AB07DD12F869470073262E /* FLScanToolController.h in Headers */,
@@ -311,6 +317,8 @@
 /* Begin PBXProject section */
 		0867D690FE84028FC02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+			};
 			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "OBD2Kit" */;
 			compatibilityVersion = "Xcode 3.1";
 			developmentRegion = English;

@@ -58,7 +58,7 @@ const GoLinkRequestFrame g_VehicleBusTypeRequestFrame = {
 	}	
 }
 
-- (void) setRequestFrame:(GoLinkRequestFrame*)request {	
+- (void)setRequestFrame:(GoLinkRequestFrame*)request {	
 	if (request) {
 		memcpy(&_requestFrame, request, sizeof(GoLinkRequestFrame));
 	}

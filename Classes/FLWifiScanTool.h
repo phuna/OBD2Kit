@@ -26,6 +26,15 @@
 	NSOutputStream*			_outputStream;
 	NSMutableData*			_cachedWriteData;
 	BOOL					_spaceAvailable;
+    
+    @protected
+    NSString *_host;
+    uint _port;
 }
+
+@property (nonatomic, readonly) NSString* host;
+@property (nonatomic, readonly) uint port;
+
++ (instancetype)scanToolWithHost:(NSString*)host andPort:(uint)port;
 
 @end

@@ -18,13 +18,14 @@
  *
  */
 
+#import "FLScanTool_Private.h"
 #import "FLSimScanTool.h"
 #import "FLLogging.h"
 
 @implementation FLSimScanTool
 
 
-- (void) initScanTool {
+- (void)initScanTool {
 	
 	FLINFO(@"*** Initializing Simulated ScanTool ***")
 	_state				= STATE_IDLE;
@@ -36,12 +37,12 @@
 	//Add Speed pid
 	[_supportedSensorList addObject:[NSNumber numberWithInt:0x0D]];
 
-	[self dispatchDelegate:@selector(scanToolDidInitialize:) withObject:nil];
+    [self setSensorScanTargets:self.sensorsBlock()];
 	[self dispatchDelegate:@selector(scanToolDidConnect:) withObject:nil];
 }
 
 
-- (void) runStreams {
+- (void)runStreams {
 	NSAutoreleasePool * pool	= [[NSAutoreleasePool alloc] init];
 	FLScanToolResponse* rpmResp		= [[FLScanToolResponse alloc] init];
 	FLScanToolResponse* spdResp		= [[FLScanToolResponse alloc] init];

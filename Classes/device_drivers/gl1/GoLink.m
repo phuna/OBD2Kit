@@ -18,6 +18,7 @@
  *
  */
 
+#import "FLScanTool_Private.h"
 #import "GoLink.h"
 #import "GoLinkCommand.h"
 #import "GoLinkResponseParser.h"
@@ -29,13 +30,13 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 
 @interface GoLink (Private)
 - (FLScanToolCommand*) commandForInitState:(GoLinkInitState)state;
-- (void) handleInitReadData;
-- (void) processSystemFrame:(GoLinkSystemFrame*)frame;
-- (void) processErrorFrame:(GoLinkErrorFrame*)frame;
-- (void) processDataFrame:(uint8_t*)data length:(NSUInteger)length;
+- (void)handleInitReadData;
+- (void)processSystemFrame:(GoLinkSystemFrame*)frame;
+- (void)processErrorFrame:(GoLinkErrorFrame*)frame;
+- (void)processDataFrame:(uint8_t*)data length:(NSUInteger)length;
 - (NSArray*) framesForData:(uint8_t*)data length:(NSUInteger)length;
-- (void) commandForDTCCount;
-- (void) sendNextCommand;
+- (void)commandForDTCCount;
+- (void)sendNextCommand;
 @end
 
 
@@ -45,13 +46,13 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 - (id) init {
 	if (self = [super init]) {
 		_protocolString		= [kGoLinkProtocolString copy];
-		_deviceType			= kScanToolDeviceTypeGoLink;
+//		_deviceType			= kScanToolDeviceTypeGoLink;
 	}
 	
 	return self;
 }
 
-- (NSString*) scanToolName {
+- (NSString*)scanToolName {
 	return @"GoLink";
 }
 
@@ -82,7 +83,7 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 	return cmd;
 }
 
-- (void) initScanTool {
+- (void)initScanTool {
 	
 	FLINFO(@"*** Initializing GoLink ***")
 	_state				= STATE_INIT;
@@ -130,7 +131,7 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 }
 
 
-- (void) handleReadData {
+- (void)handleReadData {
 	FLTRACE_ENTRY
 	
 	while ([[_session inputStream] hasBytesAvailable] && 
@@ -211,7 +212,8 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 			_currentPIDGroup	= 0x00;
 			FLINFO(@"*** STATE_IDLE ***")
 			_state		= STATE_IDLE;
-			[self dispatchDelegate:@selector(scanToolDidInitialize:) withObject:nil];
+            
+            [self setSensorScanTargets:self.sensorsBlock()];
 		}
 		else if (_initState != GOLINK_INIT_STATE_COMPLETE && STATE_INIT()) {
 			[self sendCommand:[self commandForInitState:_initState] initCommand:YES];
@@ -232,7 +234,7 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 }
 
 
-- (void) commandForDTCCount {
+- (void)commandForDTCCount {
 	if(!_priorityCommandQueue) {
 		_priorityCommandQueue = [NSMutableArray arrayWithCapacity:8];
 		[_priorityCommandQueue retain];
@@ -244,7 +246,7 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 }
 
 
-- (void) sendNextCommand {
+- (void)sendNextCommand {
 	FLScanToolCommand* cmd = [self dequeueCommand];	
 	if(cmd) {
 		if (cmd.pid == 0x0C) {
@@ -258,11 +260,11 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 }
 
 
-- (void) handleInitReadData {
+- (void)handleInitReadData {
 	
 }
 
-- (void) processSystemFrame:(GoLinkSystemFrame*)frame {	
+- (void)processSystemFrame:(GoLinkSystemFrame*)frame {	
 	FLDEBUG(@"systemFrame->requestType = 0x%02X", frame->requestType)
 	
 	switch (frame->requestType) {
@@ -284,7 +286,7 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 }
 
 
-- (void) processErrorFrame:(GoLinkErrorFrame*)frame {
+- (void)processErrorFrame:(GoLinkErrorFrame*)frame {
 	
 	switch (frame->status) {
 		case kGLErrorMessageSleep:
@@ -310,7 +312,7 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 }
 
 
-- (void) processDataFrame:(uint8_t*)data length:(NSUInteger)length {
+- (void)processDataFrame:(uint8_t*)data length:(NSUInteger)length {
 	
 	//GoLinkDataFrame* frame			= (GoLinkDataFrame*)data;
 	GoLinkResponseParser* parser	= [[GoLinkResponseParser alloc] initWithBytes:data length:length];

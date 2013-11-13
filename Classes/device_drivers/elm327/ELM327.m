@@ -19,17 +19,19 @@
  */
 
 #import "ELM327.h"
+#import "FLScanTool_Private.h"
+
 #import "ELM327Command.h"
 #import "ELM327ResponseParser.h"
 #import "FLLogging.h"
 
 @interface ELM327 (Private)
 - (FLScanToolCommand*) commandForInitState:(ELM327InitState)state;
-- (void) handleInputEvent:(NSStreamEvent)eventCode;
-- (void) handleOutputEvent:(NSStreamEvent)eventCode;
-- (void) readInput;
-- (void) readInitResponse;
-- (void) readVoltageResponse;
+- (void)handleInputEvent:(NSStreamEvent)eventCode;
+- (void)handleOutputEvent:(NSStreamEvent)eventCode;
+- (void)readInput;
+- (void)readInitResponse;
+- (void)readVoltageResponse;
 @end
 
 
@@ -39,15 +41,15 @@
 @synthesize initState	= _initState;
 
 
-- (id) init {
-	if (self = [super init]) {
-		_deviceType		= kScanToolDeviceTypeGoLink;
-	}
-	
-	return self;
-}
+//- (id) init {
+//	if (self = [super init]) {
+//		_deviceType		= kScanToolDeviceTypeGoLink;
+//	}
+//	
+//	return self;
+//}
 
-- (NSString*) scanToolName {
+- (NSString*)scanToolName {
 	return @"ELM327";
 }
 
@@ -92,7 +94,7 @@
 
 
 
-- (void) initScanTool {
+- (void)initScanTool {
 	
 	FLTRACE_ENTRY
 	
@@ -125,11 +127,27 @@
 	}	
 }
 
-- (void) readInitResponse {
+- (void)readInitResponse {
 	FLTRACE_ENTRY
 	
 	@try {
+//        uint8_t buf[512];
+        
 		NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - (_readBufLength-1))];
+        
+////        uint pointer = 0;
+//        for (uint i = 0; i < 512; i++) {
+//            uint8_t value = buf[i];
+////            if (value == '\n') {
+////                continue;
+////            } else {
+////                _readBuf[pointer] = value;
+////                pointer++;
+////            }
+//            
+//            _readBuf[i] = value;
+//        }
+        
 		FLDEBUG(@"Read %d bytes", readLength)
 		FLDEBUG(@"_readBufLength = %d", _readBufLength)
 		
@@ -250,7 +268,7 @@
 					FLDEBUG(@"Init Complete", nil)
 					_initState	= ELM327_INIT_STATE_UNKNOWN;
 					_state		= STATE_IDLE;
-					[self dispatchDelegate:@selector(scanToolDidInitialize:) withObject:nil];
+                    [self setSensorScanTargets:self.sensorsBlock()];
 				}
 				else {
 					[self sendCommand:[self commandForInitState:_initState] initCommand:YES];
@@ -266,7 +284,7 @@
 	}	
 }
 
-- (void) readInput {
+- (void)readInput {
 	FLTRACE_ENTRY
 	@try {
 		NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - _readBufLength)];
@@ -334,7 +352,7 @@
 }
 
 
-- (void) readVoltageResponse {
+- (void)readVoltageResponse {
 	FLTRACE_ENTRY
 	@try {
 		NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - _readBufLength)];

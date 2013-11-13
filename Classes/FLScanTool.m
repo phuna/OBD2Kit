@@ -18,19 +18,13 @@
  *
  */
 
-#import <CoreFoundation/CoreFoundation.h>
+#import "FLScanTool_Private.h"
 
-#import "FLScanTool.h"
-#import "FLLogging.h"
 #import "ELM327.h"
-#import "GoLink.h"
+#import "FLLogging.h"
 #import "FLSimScanTool.h"
-
-@interface FLScanTool (Private)
-- (unsigned char) nextSensor;
-- (FLScanToolCommand*) commandForNextSensor;
-@end
-
+#import "GoLink.h"
+#import <CoreFoundation/CoreFoundation.h>
 
 #pragma mark -
 @implementation FLScanTool
@@ -39,33 +33,30 @@
 			delegate			= _delegate,
 			scanToolState		= _state,
 			scanToolProtocol	= _protocol,
-			scanToolDeviceType	= _deviceType,
-			host				= _host,
-			port				= _port,
 			useLocation			= _useLocation;
 
 
-+ (FLScanTool*) scanToolForDeviceType:(FLScanToolDeviceType) deviceType {
-	
-	FLScanTool* scanTool = nil;
-	
-	switch (deviceType) {
-		case kScanToolDeviceTypeBluTrax:
-			break;
-		case kScanToolDeviceTypeELM327:
-			scanTool = [[ELM327 alloc] init];
-			break;
-		case kScanToolDeviceTypeGoLink:
-			scanTool = [[GoLink alloc] init];
-			break;
-		case kScanToolDeviceTypeSimulated:
-			scanTool = [[FLSimScanTool alloc] init];
-		default:
-			break;
-	}
-	
-	return [scanTool autorelease];
-}
+//+ (FLScanTool*) scanToolForDeviceType:(FLScanToolDeviceType) deviceType {
+//	
+//	FLScanTool* scanTool = nil;
+//	
+//	switch (deviceType) {
+//		case kScanToolDeviceTypeBluTrax:
+//			break;
+//		case kScanToolDeviceTypeELM327:
+//			scanTool = [[ELM327 alloc] init];
+//			break;
+//		case kScanToolDeviceTypeGoLink:
+//			scanTool = [[GoLink alloc] init];
+//			break;
+//		case kScanToolDeviceTypeSimulated:
+//			scanTool = [[FLSimScanTool alloc] init];
+//		default:
+//			break;
+//	}
+//	
+//	return [scanTool autorelease];
+//}
 
 + (NSString*) stringForProtocol:(FLScanToolProtocol)protocol {
 	NSString* protocolString	= nil;
@@ -122,7 +113,7 @@
 }
 
 
-- (void) dealloc {
+- (void)dealloc {
 	
 	[self close];
 	
@@ -137,7 +128,7 @@
 }
 
 
-- (NSString*) scanToolName {
+- (NSString*)scanToolName {
 	[self doesNotRecognizeSelector:@selector(scanToolName)];
 	return nil;
 }
@@ -150,12 +141,12 @@
 	return ([self isKindOfClass:[FLEAScanTool class]]);
 }
 
-- (void) open {	
+- (void)open {	
 	// Abstract method
 	[self doesNotRecognizeSelector:_cmd];
 }
 
-- (void) close {
+- (void)close {
 	// Abstract method
 	[self doesNotRecognizeSelector:_cmd];
 }
@@ -165,7 +156,7 @@
 	return _sensorScanTargets;
 }
 
-- (void) setSensorScanTargets:(NSArray *)targets {
+- (void)setSensorScanTargets:(NSArray *)targets {
 	[_sensorScanTargets release];	
 	_sensorScanTargets	= [[NSArray arrayWithArray:targets] retain];
 	
@@ -208,21 +199,21 @@
 	return nil;
 }
 
-- (void) enqueueCommand:(FLScanToolCommand*)command {
+- (void)enqueueCommand:(FLScanToolCommand*)command {
 	[_priorityCommandQueue addObject:command];
 }
 
 
-- (void) sendCommand:(FLScanToolCommand*)command initCommand:(BOOL)initCommand {
+- (void)sendCommand:(FLScanToolCommand*)command initCommand:(BOOL)initCommand {
 	// Abstract method
 	[self doesNotRecognizeSelector:_cmd];
 }
 
-- (void) clearCommandQueue {
+- (void)clearCommandQueue {
 	[_priorityCommandQueue removeAllObjects];
 }
 
-- (void) getResponse {
+- (void)getResponse {
 	// Abstract method
 	[self doesNotRecognizeSelector:_cmd];
 }
@@ -361,7 +352,7 @@
 }
 
 
-- (void) dispatchDelegate:(SEL)selector withObject:(id)obj {
+- (void)dispatchDelegate:(SEL)selector withObject:(id)obj {
 	if(_delegate && [_delegate respondsToSelector:selector]) {
 		
 		// The NSObject cast below removes warning about unrecognized selector
@@ -389,14 +380,16 @@
 #pragma mark Scanning Operation
 
 
-- (void) initScanTool {
+- (void)initScanTool {
 	// Abstract method
 	[self doesNotRecognizeSelector:_cmd];
 }
 
 
-- (void) startScan {
-	
+- (void)startScanWithSensors:(NSArray* (^)(void))sensors
+{
+    [self setSensorsBlock:sensors];
+    
 	[_priorityCommandQueue release];
 	[_commandQueue release];
 	
@@ -434,19 +427,19 @@
 }
 
 
-- (void) pauseScan {
+- (void)pauseScan {
 	FLTRACE_ENTRY
 	[_scanOperationQueue setSuspended:YES];
 }
 
 
-- (void) resumeScanFromPause {
+- (void)resumeScanFromPause {
 	FLTRACE_ENTRY
 	[_scanOperationQueue setSuspended:NO];
 }
 
 
-- (void) cancelScan {
+- (void)cancelScan {
 	FLINFO("ATTEMPTING SCAN CANCELLATION")
 	[_scanOperationQueue cancelAllOperations];	
 	[_streamOperation cancel];
@@ -466,7 +459,7 @@
 }
 
 
-- (void) runStreams {
+- (void)runStreams {
 	NSAutoreleasePool * pool	= [[NSAutoreleasePool alloc] init];
 	NSRunLoop* currentRunLoop	= [NSRunLoop currentRunLoop];
 	NSDate* distantFutureDate	= [NSDate distantFuture];
@@ -502,7 +495,7 @@
 }
 
 
-- (void) getTroubleCodes {
+- (void)getTroubleCodes {
 
 	if(!_priorityCommandQueue) {
 		_priorityCommandQueue = [NSMutableArray arrayWithCapacity:8];
@@ -515,7 +508,7 @@
 }
 
 
-- (void) getPendingTroubleCodes {
+- (void)getPendingTroubleCodes {
 	if(!_priorityCommandQueue) {
 		_priorityCommandQueue = [NSMutableArray arrayWithCapacity:8];
 		[_priorityCommandQueue retain];
@@ -527,7 +520,7 @@
 }
 
 
-- (void) clearTroubleCodes {
+- (void)clearTroubleCodes {
 	if(!_priorityCommandQueue) {
 		_priorityCommandQueue = [NSMutableArray arrayWithCapacity:8];
 		[_priorityCommandQueue retain];
@@ -543,7 +536,7 @@
 											   data:nil]];
 }
 
-- (void) getBatteryVoltage {
+- (void)getBatteryVoltage {
 	if(!_priorityCommandQueue) {
 		_priorityCommandQueue = [NSMutableArray arrayWithCapacity:8];
 		[_priorityCommandQueue retain];
@@ -552,7 +545,7 @@
 	[self enqueueCommand:[self commandForGetBatteryVoltage]];
 }
 
-- (void) writeCachedData {
+- (void)writeCachedData {
 	// Abstract method
 	[self doesNotRecognizeSelector:_cmd];
 }

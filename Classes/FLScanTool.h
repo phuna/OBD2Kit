@@ -32,17 +32,6 @@ typedef enum  {
 	NUM_STATES
 } FLScanToolState;
 
-
-typedef enum {
-	kScanToolDeviceTypeBluTrax = 0,
-	kScanToolDeviceTypeELM327,
-	kScanToolDeviceTypeOBDKey,
-	kScanToolDeviceTypeGoLink,
-	kScanToolDeviceTypeSimulated,
-
-	kNumScanToolDeviceTypes
-} FLScanToolDeviceType;
-
 typedef enum {
 	kScanToolModeRequestCurrentPowertrainDiagnosticData = 1,
 	kScanToolModeRequestPowertrainFreezeFrameData,
@@ -114,7 +103,6 @@ typedef enum {
 	
 	FLScanToolState				_state;
 	FLScanToolProtocol			_protocol;
-	FLScanToolDeviceType		_deviceType;
 	BOOL						_waitingForVoltageCommand;
 	BOOL						_useLocation;
 	CLLocationManager*			_locationManager;
@@ -124,9 +112,6 @@ typedef enum {
 	NSTimer*					_deadmanTimer;
 	
 	NSUInteger					_currentPIDGroup;
-	
-	NSString*					_host;
-	NSInteger					_port;
 }
 
 @property(readonly) NSArray* supportedSensors;
@@ -138,14 +123,10 @@ typedef enum {
 @property(nonatomic, retain, readonly) NSString* scanToolName;
 @property(nonatomic, readonly) FLScanToolState scanToolState;
 @property(nonatomic, readonly) FLScanToolProtocol scanToolProtocol;
-@property(nonatomic, readonly) FLScanToolDeviceType scanToolDeviceType;
 @property(nonatomic, readonly, getter=isWifiScanTool) BOOL wifiScanTool;
 @property(nonatomic, readonly, getter=isEAScanTool) BOOL eaScanTool;
-@property (nonatomic, copy) NSString* host;		//For WiFi ScanTool
-@property (nonatomic, assign) NSInteger port;	//For WiFi ScanTool
 
-
-+ (FLScanTool*) scanToolForDeviceType:(FLScanToolDeviceType) deviceType;
+//+ (FLScanTool*) scanToolForDeviceType:(FLScanToolDeviceType) deviceType;
 + (NSString*) stringForProtocol:(FLScanToolProtocol)protocol;
 
 //
@@ -167,30 +148,31 @@ typedef enum {
 - (FLScanToolCommand*) commandForGetBatteryVoltage;
 
 
-- (void) enqueueCommand:(FLScanToolCommand*)command;
+- (void)enqueueCommand:(FLScanToolCommand*)command;
 - (FLScanToolCommand*) dequeueCommand;
-- (void) clearCommandQueue;
+- (void)clearCommandQueue;
 
-- (void) sendCommand:(FLScanToolCommand*)command initCommand:(BOOL)initCommand;
-- (void) getResponse;
+- (void)sendCommand:(FLScanToolCommand*)command initCommand:(BOOL)initCommand;
+- (void)getResponse;
 
-- (void) open;
-- (void) close;
-- (void) initScanTool;
-- (void) startScan;
-- (void) pauseScan;
-- (void) resumeScanFromPause;
-- (void) cancelScan;
-- (void) dispatchDelegate:(SEL)selector withObject:(id)obj;
-- (void) updateSafetyCheckState;
+- (void)open;
+- (void)close;
+- (void)initScanTool;
+//- (void)startScan;
+- (void)startScanWithSensors:(NSArray* (^)(void))sensors;
+- (void)pauseScan;
+- (void)resumeScanFromPause;
+- (void)cancelScan;
+- (void)dispatchDelegate:(SEL)selector withObject:(id)obj;
+- (void)updateSafetyCheckState;
 - (BOOL) buildSupportedSensorList:(NSData*)data forPidGroup:(NSUInteger)pidGroup;
 - (BOOL) isService01PIDSupported:(NSUInteger)pid;
-- (void) getTroubleCodes;
-- (void) getPendingTroubleCodes;
-- (void) clearTroubleCodes;
-- (void) getBatteryVoltage;
-- (void) stream:(NSStream*)stream handleEvent:(NSStreamEvent)eventCode;
-- (void) writeCachedData;
+- (void)getTroubleCodes;
+- (void)getPendingTroubleCodes;
+- (void)clearTroubleCodes;
+- (void)getBatteryVoltage;
+- (void)stream:(NSStream*)stream handleEvent:(NSStreamEvent)eventCode;
+- (void)writeCachedData;
 
 @end
 
@@ -204,7 +186,6 @@ typedef enum {
 - (void)scanToolWillSleep:(FLScanTool*)scanTool;
 - (void)scanToolDidConnect:(FLScanTool*)scanTool;
 - (void)scanToolDidDisconnect:(FLScanTool*)scanTool;
-- (void)scanToolDidInitialize:(FLScanTool*)scanTool;
 - (void)scanToolDidFailToInitialize:(FLScanTool*)scanTool;
 - (void)scanTool:(FLScanTool*)scanTool didSendCommand:(FLScanToolCommand*)command;
 - (void)scanTool:(FLScanTool*)scanTool didReceiveResponse:(NSArray*)responses;

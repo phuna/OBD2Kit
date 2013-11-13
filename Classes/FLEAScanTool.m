@@ -29,14 +29,14 @@
 			protocolString	= _protocolString;
 
 
-- (void) dealloc {
+- (void)dealloc {
 	[_accessory release];
 	[_protocolString release];
 	[_cachedWriteData release];	
 	[super dealloc];
 }
 
-- (void) configureScanToolAccessory:(EAAccessory*)accessory 
+- (void)configureScanToolAccessory:(EAAccessory*)accessory 
 						forProtocol:(NSString*)protocol {
     
 	[_accessory release];
@@ -46,7 +46,7 @@
     _protocolString	= [[NSString alloc] initWithString:protocol];
 }
 
-- (void) open {
+- (void)open {
 	
 	@try {		
 		_accessory	= [[[FLEAController sharedController] accessoryForProtocol:_protocolString] retain];
@@ -59,7 +59,7 @@
 }
 
 
-- (void) close {
+- (void)close {
 	
 	@try {
 		[self closeSession];
@@ -104,7 +104,7 @@
     return (_session != nil);
 }
 
-- (void) closeSession {
+- (void)closeSession {
     
 	FLINFO(@"-------------------------------------------->>>> CLOSING EASESSION")
 	
@@ -128,7 +128,7 @@
 	_accessory	= nil;
 }
 
-- (void) sendCommand:(FLScanToolCommand*)command initCommand:(BOOL)initCommand {
+- (void)sendCommand:(FLScanToolCommand*)command initCommand:(BOOL)initCommand {
 	FLTRACE_ENTRY
 	if (!_cachedWriteData) {
         _cachedWriteData = [[NSMutableData alloc] init];
@@ -139,12 +139,12 @@
 	[self writeCachedData];
 }
 
-- (void) getResponse {
+- (void)getResponse {
 	FLTRACE_ENTRY
 	;
 }
 
-- (void) handleReadData {
+- (void)handleReadData {
 	// Abstract method
 	[self doesNotRecognizeSelector:_cmd];
 }
@@ -152,7 +152,7 @@
 #pragma mark -
 #pragma mark EAAccessoryDelegate Methods
 
-- (void) accessoryDidDisconnect:(EAAccessory *)accessory {
+- (void)accessoryDidDisconnect:(EAAccessory *)accessory {
     FLDEBUG(@"the accessory was disconnected", nil)
 	[self dispatchDelegate:@selector(scanToolDidDisconnect:) withObject:nil];
 }
@@ -192,7 +192,7 @@
 #pragma mark -
 #pragma mark Private Methods
 
-- (void) writeCachedData {
+- (void)writeCachedData {
     
 	FLTRACE_ENTRY
 	

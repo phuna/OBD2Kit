@@ -125,7 +125,7 @@ NSString *const kELM327SetDeviceIdentifier			= @"AT @3";
 }
 
 
-- (void) dealloc {
+- (void)dealloc {
 	[_command release];
 	[super dealloc];
 }

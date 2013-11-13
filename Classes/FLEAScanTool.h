@@ -34,7 +34,7 @@
 @property (nonatomic, retain, readonly) EAAccessory* accessory;
 @property (nonatomic, copy, readonly) NSString* protocolString;
 
-- (void) configureScanToolAccessory:(EAAccessory*)accessory 
+- (void)configureScanToolAccessory:(EAAccessory*)accessory 
 						forProtocol:(NSString*)protocol;
 - (BOOL)openSession;
 - (void)closeSession;

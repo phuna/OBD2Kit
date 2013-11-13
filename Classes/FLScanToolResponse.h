@@ -21,6 +21,8 @@
 #import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
 
+#import "OBD2Sensors.h"
+
 typedef struct pid_support_map_t {
 
 	// DATA A
@@ -86,7 +88,6 @@ typedef struct pid_support_map_t {
 	NSUInteger				_ecuAddress;
 	NSData*					_data;
 	NSUInteger				_mode;
-	NSUInteger				_pid;
 	NSUInteger				_crc;	
 
 	double					_latitude;
@@ -107,7 +108,7 @@ typedef struct pid_support_map_t {
 @property (nonatomic, assign) NSUInteger targetAddress;
 @property (nonatomic, assign) NSUInteger ecuAddress;
 @property (nonatomic, assign) NSUInteger mode;
-@property (nonatomic, assign) NSUInteger pid;
+@property (nonatomic, assign) OBD2Sensor pid;
 @property (nonatomic, assign) NSUInteger crc;
 @property (nonatomic, retain) NSData* data;
 @property (nonatomic, assign) double latitude;
@@ -118,7 +119,7 @@ typedef struct pid_support_map_t {
 @property (nonatomic, assign) double gpsSpeed;
 
 
-- (void) updateLocation:(CLLocation*)location;
+- (void)updateLocation:(CLLocation*)location;
 - (id) proxyForJson;
 
 @end

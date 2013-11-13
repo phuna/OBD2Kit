@@ -22,12 +22,25 @@
 #import "NSStreamAdditions.h"
 #import "FLLogging.h"
 
+@interface FLWifiScanTool ()
 
-#pragma mark -
+@property (nonatomic, copy) NSString* host;
+@property (nonatomic, assign) uint port;
+
+@end
+
 @implementation FLWifiScanTool
 
++ (instancetype)scanToolWithHost:(NSString*)host andPort:(uint)port
+{
+    FLWifiScanTool *tool = [self new];
+    [tool setHost:host];
+    [tool setPort:port];
+    
+    return tool;
+}
 
-- (void) dealloc {
+- (void)dealloc {
 	[_inputStream release];		
 	[_outputStream release];
 	[_host release];
@@ -35,7 +48,7 @@
 	[super dealloc];
 }
 
-- (void) open {
+- (void)open {
 	
 	@try {
 		[NSStream getIOStreamsToHostNamed:_host 
@@ -64,7 +77,7 @@
 }
 
 
-- (void) close {
+- (void)close {
 	
 	@try {
 		[_inputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
@@ -83,7 +96,7 @@
 	}
 }
 
-- (void) sendCommand:(FLScanToolCommand*)command initCommand:(BOOL)initCommand {
+- (void)sendCommand:(FLScanToolCommand*)command initCommand:(BOOL)initCommand {
 	FLTRACE_ENTRY
 	if (!_cachedWriteData) {
         _cachedWriteData = [[NSMutableData alloc] init];
@@ -94,7 +107,7 @@
 	[self writeCachedData];
 }
 
-- (void) getResponse {
+- (void)getResponse {
 	if([_inputStream hasBytesAvailable]) {
 		[self stream:_inputStream handleEvent:NSStreamEventHasBytesAvailable];
 	}
@@ -111,7 +124,7 @@
 #pragma mark -
 #pragma mark Private Methods
 
-- (void) writeCachedData {
+- (void)writeCachedData {
     
 	FLTRACE_ENTRY
 	

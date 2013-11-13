@@ -63,7 +63,7 @@ typedef struct can_29bit_response_t {
 
 - initWithBytes:(uint8_t*)bytes length:(NSUInteger)length;
 
-- (void) setBytes:(uint8_t*)bytes length:(NSInteger)length;
+- (void)setBytes:(uint8_t*)bytes length:(NSInteger)length;
 
 - (NSArray*) parseResponse:(FLScanToolProtocol)protocol;
 
@@ -76,7 +76,7 @@ typedef struct can_29bit_response_t {
 
 @optional
 
-- (void) parser:(FLScanToolResponseParser*)parser didReceiveResponse:(FLScanToolResponse*)response;
-- (void) parser:(FLScanToolResponseParser*)parser didFailWithError:(NSError*)error;
+- (void)parser:(FLScanToolResponseParser*)parser didReceiveResponse:(FLScanToolResponse*)response;
+- (void)parser:(FLScanToolResponseParser*)parser didFailWithError:(NSError*)error;
 
 @end

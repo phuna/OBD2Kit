@@ -21,29 +21,10 @@
 #import "FLScanToolResponse.h"
 #import "Base64Extensions.h"
 
-
 @implementation FLScanToolResponse
-
-@synthesize scanToolName		= _scanToolName,
-			protocol			= _protocol,
-			timestamp			= _timestamp,
-			priority			= _priority,
-			targetAddress		= _targetAddress,
-			ecuAddress			= _ecuAddress,
-			pid					= _pid,
-			crc					= _crc,
-			responseString		= _responseString,
-			latitude			= _latitude,
-			longitude			= _longitude,
-			altitude			= _altitude,
-			horizontalAccuracy	= _locationHorizontalAccuracy,
-			verticalAccuracy	= _locationVerticalAccuracy,
-			gpsSpeed			= _gpsSpeed;
-
 
 - (id) init {
 	if(self = [super init]) {
-		
 		_timestamp					= [[NSDate date] retain];
 		
 		_scanToolName				= nil;
@@ -72,7 +53,7 @@
 	return _responseData;
 }
 
-- (void) setRawData:(NSData*)data {
+- (void)setRawData:(NSData*)data {
 	[_responseData release];
 	_responseData = [data retain];
 }
@@ -81,7 +62,7 @@
 	return _isError;
 }
 
-- (void) setError:(BOOL)error {
+- (void)setError:(BOOL)error {
 	_isError = error;
 }
 
@@ -89,7 +70,7 @@
 	return _data;
 }
 
-- (void) setData:(NSData*)newData {
+- (void)setData:(NSData*)newData {
 	[_data release];
 	_data = [newData retain];
 }
@@ -98,12 +79,12 @@
 	return _mode;
 }
 
-- (void) setMode:(NSUInteger)mode {
+- (void)setMode:(NSUInteger)mode {
 	_mode = (mode ^ 0x40);
 }
 
 
-- (void) dealloc {
+- (void)dealloc {
 	[_data release];
 	[_responseData release];
 	[_timestamp release];
@@ -111,7 +92,7 @@
 	[super dealloc];
 }
 
-- (void) updateLocation:(CLLocation*)location {
+- (void)updateLocation:(CLLocation*)location {
 	
 	if(location) {
 		self.gpsSpeed			= location.speed;

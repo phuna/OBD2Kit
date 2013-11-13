@@ -439,15 +439,15 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 #pragma mark -
 #pragma mark Private Methods
 @interface FLECUSensor(StringValueMethods)
-- (NSString*) calculateStringForData:(NSData*)data;
-- (NSString*) calculateAuxiliaryInputStatus:(NSData*)data;
-- (NSString*) calculateDesignRequirements:(NSData*)data;
-- (NSString*) calculateOxygenSensorsPresent:(NSData*)data;
-- (NSString*) calculateOxygenSensorsPresentB:(NSData*)data;
-- (NSString*) calculateFuelSystemStatus:(NSData*)data;
-- (NSString*) calculateSecondaryAirStatus:(NSData*)data;
+- (NSString*)calculateStringForData:(NSData*)data;
+- (NSString*)calculateAuxiliaryInputStatus:(NSData*)data;
+- (NSString*)calculateDesignRequirements:(NSData*)data;
+- (NSString*)calculateOxygenSensorsPresent:(NSData*)data;
+- (NSString*)calculateOxygenSensorsPresentB:(NSData*)data;
+- (NSString*)calculateFuelSystemStatus:(NSData*)data;
+- (NSString*)calculateSecondaryAirStatus:(NSData*)data;
 
-- (void) addValueHistoryForCurrentResponse;
+- (void)addValueHistoryForCurrentResponse;
 @end
 
 
@@ -457,7 +457,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 + (FLECUSensor*) sensorForPID:(NSUInteger)pid {
 	FLECUSensor* sensor		= nil;
 	
-	if(pid >= 0x0 && pid <= 0x4E) {
+	if(pid <= 0x4E) {
 		sensor			= [[FLECUSensor alloc] initWithDescriptor:&g_sensorDescriptorTable[pid]];
 	}
 	
@@ -520,7 +520,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- initWithDescriptor:(MultiSensorDescriptor*)descriptor {
+- (id)initWithDescriptor:(MultiSensorDescriptor*)descriptor {
 	
 	if(self = [super init]) {
 		_sensorDescriptor = descriptor;
@@ -542,7 +542,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	return _currentResponse;
 }
 
-- (void) setCurrentResponse:(FLScanToolResponse*)response {
+- (void)setCurrentResponse:(FLScanToolResponse*)response {
 		
 	if(response) {		
 		if(response.pid == self.pid) {
@@ -591,7 +591,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (void) addValueHistoryForCurrentResponse {
+- (void)addValueHistoryForCurrentResponse {
 	
 	@try {
 		
@@ -648,7 +648,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSInteger) troubleCodeCount {
+- (NSInteger)troubleCodeCount {
 	if(self.pid == 0x01) {
 		return calcNumTroubleCodes([_currentResponse.data bytes], [_currentResponse.data length]);
 	}
@@ -704,7 +704,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 
 
 
-- (NSString*) valueStringForMeasurement1:(BOOL)metric {
+- (NSString*)valueStringForMeasurement1:(BOOL)metric {
 	NSObject* value = [self valueForMeasurement1:metric];
 	
 	if([value isKindOfClass:[NSString class]]) {
@@ -721,7 +721,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	}
 }
 
-- (NSString*) valueStringForMeasurement2:(BOOL)metric {
+- (NSString*)valueStringForMeasurement2:(BOOL)metric {
 	
 	if(!self.isMultiValue) {
 		return nil;
@@ -744,7 +744,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSString*) unitStringForMeasurement1:(BOOL)metric {	
+- (NSString*)unitStringForMeasurement1:(BOOL)metric {	
 	
 	if(!metric && _sensorDescriptor->sensorDescriptor1.imperialUnit) {
 		return [NSString stringWithCString:_sensorDescriptor->sensorDescriptor1.imperialUnit encoding:NSUTF8StringEncoding];
@@ -757,7 +757,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	}
 }
 
-- (NSString*) unitStringForMeasurement2:(BOOL)metric {	
+- (NSString*)unitStringForMeasurement2:(BOOL)metric {	
 	
 	if(!self.isMultiValue) {
 		return nil;
@@ -776,7 +776,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSString*) descriptionStringForMeasurement1 {
+- (NSString*)descriptionStringForMeasurement1 {
 	
 	if(NULL != _sensorDescriptor->sensorDescriptor1.description) {
 		return [NSString stringWithCString:_sensorDescriptor->sensorDescriptor1.description encoding:NSUTF8StringEncoding];
@@ -787,7 +787,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSString*) shortDescriptionStringForMeasurement1 {
+- (NSString*)shortDescriptionStringForMeasurement1 {
 	
 	if(NULL != _sensorDescriptor->sensorDescriptor1.shortDescription) {
 		return [NSString stringWithCString:_sensorDescriptor->sensorDescriptor1.shortDescription encoding:NSUTF8StringEncoding];
@@ -798,7 +798,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSString*) descriptionStringForMeasurement2 {	
+- (NSString*)descriptionStringForMeasurement2 {	
 	if(self.isMultiValue) {
 		
 		if(NULL != _sensorDescriptor->sensorDescriptor2.description) {
@@ -813,7 +813,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	}
 }
 
-- (NSString*) shortDescriptionStringForMeasurement2 {
+- (NSString*)shortDescriptionStringForMeasurement2 {
 	if(self.isMultiValue) {
 		
 		if(NULL != _sensorDescriptor->sensorDescriptor2.shortDescription) {
@@ -829,7 +829,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSString*) metricUnitString {
+- (NSString*)metricUnitString {
 	NSString* rvString1	= [NSString stringWithCString:_sensorDescriptor->sensorDescriptor1.metricUnit encoding:NSUTF8StringEncoding];	
 	
 	if(self.isMultiValue) {		
@@ -845,7 +845,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	}	
 }
 
-- (NSString*) imperialUnitString {
+- (NSString*)imperialUnitString {
 	
 	const char* unitString = (_sensorDescriptor->sensorDescriptor1.imperialUnit) ? _sensorDescriptor->sensorDescriptor1.imperialUnit : _sensorDescriptor->sensorDescriptor1.metricUnit;
 	
@@ -871,7 +871,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSInteger) minValueForMeasurement1:(BOOL)metric {
+- (NSInteger)minValueForMeasurement1:(BOOL)metric {
 	
 	NSInteger minValue = INT_MAX;
 	
@@ -890,7 +890,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSInteger) minValueForMeasurement2:(BOOL)metric {
+- (NSInteger)minValueForMeasurement2:(BOOL)metric {
 	NSInteger minValue = INT_MAX;
 	
 	if(self.isAlphaValue || !self.isMultiValue) {
@@ -908,7 +908,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSInteger) maxValueForMeasurement1:(BOOL)metric {
+- (NSInteger)maxValueForMeasurement1:(BOOL)metric {
 	NSInteger maxValue = INT_MAX;
 	
 	if(self.isAlphaValue) {
@@ -926,7 +926,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSInteger) maxValueForMeasurement2:(BOOL)metric {
+- (NSInteger)maxValueForMeasurement2:(BOOL)metric {
 	NSInteger maxValue = INT_MAX;
 	
 	if(self.isAlphaValue || !self.isMultiValue) {
@@ -945,7 +945,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 
 
 
-- (NSString*) minValueStringForMeasurement1:(BOOL)metric {
+- (NSString*)minValueStringForMeasurement1:(BOOL)metric {
 	if(self.isAlphaValue) {
 		return nil;
 	}
@@ -961,7 +961,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSString*) minValueStringForMeasurement2:(BOOL)metric {
+- (NSString*)minValueStringForMeasurement2:(BOOL)metric {
 	
 	if(self.isAlphaValue || !self.isMultiValue) {
 		return nil;
@@ -978,7 +978,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSString*) maxValueStringForMeasurement1:(BOOL)metric {
+- (NSString*)maxValueStringForMeasurement1:(BOOL)metric {
 	
 	if(self.isAlphaValue) {
 		return nil;
@@ -1001,7 +1001,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSString*) maxValueStringForMeasurement2:(BOOL)metric {
+- (NSString*)maxValueStringForMeasurement2:(BOOL)metric {
 	if(self.isAlphaValue || !self.isMultiValue) {
 		return nil;
 	}
@@ -1017,35 +1017,35 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSInteger) minValueForMetricMeasurement1 {
+- (NSInteger)minValueForMetricMeasurement1 {
 	return _sensorDescriptor->sensorDescriptor1.minMetricValue;
 }
 
-- (NSInteger) minValueForMetricMeasurement2 {
+- (NSInteger)minValueForMetricMeasurement2 {
 	return _sensorDescriptor->sensorDescriptor2.minMetricValue;
 }
 
-- (NSInteger) maxValueForMetricMeasurement1 {
+- (NSInteger)maxValueForMetricMeasurement1 {
 	return _sensorDescriptor->sensorDescriptor1.maxMetricValue;
 }
 
-- (NSInteger) maxValueForMetricMeasurement2 {
+- (NSInteger)maxValueForMetricMeasurement2 {
 	return _sensorDescriptor->sensorDescriptor2.maxMetricValue;
 }
 
-- (NSInteger) minValueForImperialMeasurement1 {
+- (NSInteger)minValueForImperialMeasurement1 {
 	return _sensorDescriptor->sensorDescriptor1.minImperialValue;
 }
 
-- (NSInteger) minValueForImperialMeasurement2 {
+- (NSInteger)minValueForImperialMeasurement2 {
 	return _sensorDescriptor->sensorDescriptor2.minImperialValue;
 }
 
-- (NSInteger) maxValueForImperialMeasurement1 {
+- (NSInteger)maxValueForImperialMeasurement1 {
 	return _sensorDescriptor->sensorDescriptor1.maxImperialValue;
 }
 
-- (NSInteger) maxValueForImperialMeasurement2 {
+- (NSInteger)maxValueForImperialMeasurement2 {
 	return _sensorDescriptor->sensorDescriptor2.maxImperialValue;
 }
 
@@ -1053,7 +1053,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 #pragma mark -
 #pragma mark String Calculation Methods
 
-- (NSString*) calculateStringForData:(NSData*)data {
+- (NSString*)calculateStringForData:(NSData*)data {
 	
 	switch(_currentResponse.pid) {
 		case 0x03:
@@ -1081,7 +1081,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 
 
 
-- (NSString*) calculateAuxiliaryInputStatus:(NSData*)data {
+- (NSString*)calculateAuxiliaryInputStatus:(NSData*)data {
 	unsigned char dataA = 0;	
 	[data getBytes:&dataA length:1];
 	
@@ -1099,7 +1099,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSString*) calculateDesignRequirements:(NSData*)data {
+- (NSString*)calculateDesignRequirements:(NSData*)data {
 	
 	NSString* returnString	= nil;
 	unsigned char dataA		= 0;
@@ -1158,7 +1158,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 
 
 
-- (NSString*) calculateOxygenSensorsPresent:(NSData*)data {
+- (NSString*)calculateOxygenSensorsPresent:(NSData*)data {
 	NSString* returnString	= nil;
 	unsigned char dataA		= 0;
 	[data getBytes:&dataA length:1];
@@ -1192,7 +1192,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSString*) calculateOxygenSensorsPresentB:(NSData*)data {
+- (NSString*)calculateOxygenSensorsPresentB:(NSData*)data {
 	
 	NSString* returnString	= nil;
 	unsigned char dataA		= 0;
@@ -1229,7 +1229,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 
 
 
-- (NSString*) calculateFuelSystemStatus:(NSData*)data {
+- (NSString*)calculateFuelSystemStatus:(NSData*)data {
 
 	NSString* rvString		= nil;
 	unsigned char dataA		= 0;
@@ -1260,7 +1260,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 
 
 
-- (NSString*) calculateSecondaryAirStatus:(NSData*)data {
+- (NSString*)calculateSecondaryAirStatus:(NSData*)data {
 	
 	NSString* rvString		= nil;
 	unsigned char dataA		= 0;
@@ -1281,6 +1281,14 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	}
 	
 	return rvString;
+}
+
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"#Sensor %@ pid: %i value: %@",
+            [self descriptionStringForMeasurement1],
+            self.pid,
+            [self valueStringForMeasurement1:YES]];
 }
 
 @end

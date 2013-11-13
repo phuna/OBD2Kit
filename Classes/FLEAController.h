@@ -45,8 +45,8 @@ extern NSString* const GoLinkScanToolProtocol;
 - (NSArray*) connectedAccessories;
 - (EAAccessory*) accessoryForProtocol:(NSString*)protocol;
 
-- (void) registerForNotifications;
-- (void) loadConnectedAccessories;
+- (void)registerForNotifications;
+- (void)loadConnectedAccessories;
 
 
 @end

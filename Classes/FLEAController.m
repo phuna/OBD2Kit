@@ -29,8 +29,8 @@ NSString* const GoLinkScanToolDisconnectedNotification	= @"GoLinkScanToolDisconn
 static FLEAController* g_sharedController = nil;
 
 @interface FLEAController (Private)
-- (void) _accessoryConnected:(NSNotification *)notification;
-- (void) _accessoryDisconnected:(NSNotification *)notification;
+- (void)_accessoryConnected:(NSNotification *)notification;
+- (void)_accessoryDisconnected:(NSNotification *)notification;
 @end
 
 #pragma mark -
@@ -82,7 +82,7 @@ static FLEAController* g_sharedController = nil;
     return self;
 }
 
-- (void) dealloc {
+- (void)dealloc {
 	[_protocolSearchString release];
 	[_connectedAccessoryList release];
 	[_currentAccessory release];
@@ -111,7 +111,7 @@ static FLEAController* g_sharedController = nil;
 	return accessory;
 }
 
-- (void) registerForNotifications {
+- (void)registerForNotifications {
 	
 	FLINFO(@"*** Registering for EA Notifications ***")
 	[[NSNotificationCenter defaultCenter] addObserver:self 
@@ -127,7 +127,7 @@ static FLEAController* g_sharedController = nil;
     [[EAAccessoryManager sharedAccessoryManager] registerForLocalNotifications];    
 }
 
-- (void) loadConnectedAccessories {
+- (void)loadConnectedAccessories {
 	_connectedAccessoryList = [[NSMutableArray alloc] initWithArray:[[EAAccessoryManager sharedAccessoryManager] connectedAccessories]];
 	
 	FLDEBUG(@"Found %d connected accessories", (_connectedAccessoryList) ? [_connectedAccessoryList count] : 0)
@@ -136,7 +136,7 @@ static FLEAController* g_sharedController = nil;
 #pragma mark -
 #pragma mark Private Notification Handlers
 
-- (void) _accessoryConnected:(NSNotification *)notification {
+- (void)_accessoryConnected:(NSNotification *)notification {
 	FLTRACE_ENTRY
     EAAccessory* connectedAccessory		= [[notification userInfo] objectForKey:EAAccessoryKey];
     [_connectedAccessoryList addObject:connectedAccessory];    
@@ -156,7 +156,7 @@ static FLEAController* g_sharedController = nil;
 	
 }
 
-- (void) _accessoryDisconnected:(NSNotification *)notification {
+- (void)_accessoryDisconnected:(NSNotification *)notification {
 	FLTRACE_ENTRY
 	EAAccessory* disconnectedAccessory	= [[notification userInfo] objectForKey:EAAccessoryKey];
 	

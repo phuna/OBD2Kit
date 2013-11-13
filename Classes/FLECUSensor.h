@@ -18,10 +18,9 @@
  *
  */
 
-#import <Foundation/Foundation.h>
 #import "FLScanToolResponse.h"
-
-
+#import "OBD2Sensors.h"
+#import <Foundation/Foundation.h>
 
 //------------------------------------------------------------------------------
 // Macros
@@ -118,7 +117,7 @@ typedef struct trouble_code_t {
 @property(nonatomic, readonly) NSArray* valueHistory;
 @property(nonatomic, readonly) BOOL isAlphaValue;
 @property(nonatomic, readonly) BOOL isMultiValue;
-@property(nonatomic, readonly) NSUInteger pid;
+@property(nonatomic, readonly) OBD2Sensor pid;
 @property(nonatomic, readonly) NSData* data;
 
 @property(nonatomic, readonly) NSString* descriptionStringForMeasurement1;
@@ -137,33 +136,33 @@ typedef struct trouble_code_t {
 @property(nonatomic, readonly) NSInteger minValueForImperialMeasurement2;
 
 
-+ (FLECUSensor*) sensorForPID:(NSUInteger)pid;
++ (FLECUSensor*)sensorForPID:(OBD2Sensor)pid;
 
-+ (NSArray*) troubleCodesForResponse:(FLScanToolResponse*)response;
++ (NSArray*)troubleCodesForResponse:(FLScanToolResponse*)response;
 
-- initWithDescriptor:(MultiSensorDescriptor*)descriptor;
+- (instancetype)initWithDescriptor:(MultiSensorDescriptor*)descriptor;
 
-- (id) valueForMeasurement1:(BOOL)metric;
-- (id) valueForMeasurement2:(BOOL)metric;
+- (id)valueForMeasurement1:(BOOL)metric;
+- (id)valueForMeasurement2:(BOOL)metric;
 
-- (NSString*) valueStringForMeasurement1:(BOOL)metric;
-- (NSString*) valueStringForMeasurement2:(BOOL)metric;
-- (NSString*) unitStringForMeasurement1:(BOOL)metric;
-- (NSString*) unitStringForMeasurement2:(BOOL)metric;
+- (NSString*)valueStringForMeasurement1:(BOOL)metric;
+- (NSString*)valueStringForMeasurement2:(BOOL)metric;
+- (NSString*)unitStringForMeasurement1:(BOOL)metric;
+- (NSString*)unitStringForMeasurement2:(BOOL)metric;
 
-- (NSInteger) minValueForMeasurement1:(BOOL)metric;
-- (NSInteger) minValueForMeasurement2:(BOOL)metric;
-- (NSInteger) maxValueForMeasurement1:(BOOL)metric;
-- (NSInteger) maxValueForMeasurement2:(BOOL)metric;
+- (NSInteger)minValueForMeasurement1:(BOOL)metric;
+- (NSInteger)minValueForMeasurement2:(BOOL)metric;
+- (NSInteger)maxValueForMeasurement1:(BOOL)metric;
+- (NSInteger)maxValueForMeasurement2:(BOOL)metric;
 
-- (NSString*) minValueStringForMeasurement1:(BOOL)metric;
-- (NSString*) minValueStringForMeasurement2:(BOOL)metric;
-- (NSString*) maxValueStringForMeasurement1:(BOOL)metric;
-- (NSString*) maxValueStringForMeasurement2:(BOOL)metric;
+- (NSString*)minValueStringForMeasurement1:(BOOL)metric;
+- (NSString*)minValueStringForMeasurement2:(BOOL)metric;
+- (NSString*)maxValueStringForMeasurement1:(BOOL)metric;
+- (NSString*)maxValueStringForMeasurement2:(BOOL)metric;
 
 
-- (BOOL) isMILActive;
-- (NSInteger) troubleCodeCount;
+- (BOOL)isMILActive;
+- (NSInteger)troubleCodeCount;
 @end
 
 //------------------------------------------------------------------------------

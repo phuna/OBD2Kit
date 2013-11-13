@@ -30,7 +30,7 @@ NSString *const kNoData							= @"NO DATA";
 @implementation ELM327ResponseParser
 
 
-- (NSString*) stringForResponse {
+- (NSString*)stringForResponse {
 	/*
 	const char* test = "41 00 90 18 80 00 \r41 00 BF 9F F9 91 ";
 	return [NSString stringWithCString:test encoding:NSASCIIStringEncoding];
@@ -93,14 +93,17 @@ NSString *const kNoData							= @"NO DATA";
 		_bytes[_length-1] = 0x00;
 		_length--;
 	}
+    
+	char* asciistr						= (char*)_bytes;
 	
-	char* asciistr						= (char*)_bytes;	
-	
-	if(!ELM_ERROR(asciistr) && ELM_DATA_RESPONSE(asciistr)) {
+	if(!ELM_ERROR(asciistr) /*&& ELM_DATA_RESPONSE(asciistr)*/) {
 		
 		// There may be more than one response, if multiple ECUs responded to
 		// a particular query, so split on the '\r' boundary
-		NSArray* responseComponents		= [[self stringForResponse] componentsSeparatedByString:@"\r"];
+        
+        NSString *r = [self stringForResponse];
+        NSString *s = [r stringByReplacingOccurrencesOfString:@"\r\n" withString:@""];
+		NSArray* responseComponents = [s componentsSeparatedByString:@"\r"];
 		
 		for(NSString* resp in responseComponents) {
 			
