@@ -72,7 +72,7 @@
 	}
 }
 
-- (BOOL) openSession {
+- (BOOL)openSession {
 	
     [_accessory setDelegate:self];
     

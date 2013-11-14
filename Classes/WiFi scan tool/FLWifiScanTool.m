@@ -48,8 +48,8 @@
 	[super dealloc];
 }
 
-- (void)open {
-	
+- (void)open
+{
 	@try {
 		[NSStream getIOStreamsToHostNamed:_host 
 									 port:_port 
@@ -64,8 +64,6 @@
 								forMode:NSDefaultRunLoopMode];
 		[_inputStream open];
 		
-
-		
 		[_outputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] 
 								 forMode:NSDefaultRunLoopMode];
 		[_outputStream setDelegate:self];
@@ -77,8 +75,8 @@
 }
 
 
-- (void)close {
-	
+- (void)close
+{
 	@try {
 		[_inputStream removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 		[_inputStream setDelegate:nil];
@@ -170,6 +168,11 @@
 	} while (oStreamStatus == NSStreamStatusWriting);
 	
 	FLTRACE_EXIT
+}
+
+- (BOOL)isWifiScanTool
+{
+	return YES;
 }
 
 @end

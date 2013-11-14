@@ -21,46 +21,16 @@
 #import "FLScanTool_Private.h"
 
 #import "ELM327.h"
+#import "FLECUSensor.h"
 #import "FLLogging.h"
-#import "FLSimScanTool.h"
-#import "GoLink.h"
 #import <CoreFoundation/CoreFoundation.h>
 
-#pragma mark -
 @implementation FLScanTool
 
-@synthesize supportedSensors	= _supportedSensorList, 
-			delegate			= _delegate,
-			scanToolState		= _state,
-			scanToolProtocol	= _protocol,
-			useLocation			= _useLocation;
++ (NSString*)stringForProtocol:(FLScanToolProtocol)protocol
+{
+	NSString* protocolString;
 
-
-//+ (FLScanTool*) scanToolForDeviceType:(FLScanToolDeviceType) deviceType {
-//	
-//	FLScanTool* scanTool = nil;
-//	
-//	switch (deviceType) {
-//		case kScanToolDeviceTypeBluTrax:
-//			break;
-//		case kScanToolDeviceTypeELM327:
-//			scanTool = [[ELM327 alloc] init];
-//			break;
-//		case kScanToolDeviceTypeGoLink:
-//			scanTool = [[GoLink alloc] init];
-//			break;
-//		case kScanToolDeviceTypeSimulated:
-//			scanTool = [[FLSimScanTool alloc] init];
-//		default:
-//			break;
-//	}
-//	
-//	return [scanTool autorelease];
-//}
-
-+ (NSString*) stringForProtocol:(FLScanToolProtocol)protocol {
-	NSString* protocolString	= nil;
-	
 	switch (protocol) {		
 			
 		case kScanToolProtocolISO9141Keywords0808:
@@ -133,12 +103,14 @@
 	return nil;
 }
 
-- (BOOL) isWifiScanTool {
-	return ([self isKindOfClass:[FLWifiScanTool class]]);
+- (BOOL)isWifiScanTool
+{
+	return NO;
 }
 
-- (BOOL) isEAScanTool {	
-	return ([self isKindOfClass:[FLEAScanTool class]]);
+- (BOOL)isEAScanTool
+{
+	return NO;
 }
 
 - (void)open {	
@@ -151,25 +123,19 @@
 	[self doesNotRecognizeSelector:_cmd];
 }
 
-
-- (NSArray*) sensorScanTargets {
-	return _sensorScanTargets;
-}
-
-- (void)setSensorScanTargets:(NSArray *)targets {
+- (void)setSensorScanTargets:(NSArray *)targets
+{
 	[_sensorScanTargets release];	
 	_sensorScanTargets	= [[NSArray arrayWithArray:targets] retain];
 	
-	if (![self isKindOfClass:[GoLink class]] && targets != nil) {
-		// The GoLink (GL1) has a heartbeat, so doesn't need an extra push
-		// to start scanning once targets have changed
-		
-		[self sendCommand:[self dequeueCommand] initCommand:NO];
-		[self writeCachedData];
-	}
+    // Test if GoLink support will be added
+    // The GoLink (GL1) has a heartbeat, so doesn't need an extra push
+    // to start scanning once targets have changed
+    [self sendCommand:[self dequeueCommand] initCommand:NO];
+    [self writeCachedData];
 }
 
-- (BOOL) scanning {
+- (BOOL)scanning {
 	
 	if(!_streamOperation) {
 		return NO;
@@ -219,7 +185,7 @@
 }
 
 
-- (FLScanToolCommand*) dequeueCommand {
+- (FLScanToolCommand*)dequeueCommand {
 	FLScanToolCommand* cmd = nil;
 	
 	if([_priorityCommandQueue count] > 0) {
@@ -239,7 +205,7 @@
 #pragma mark -
 #pragma mark Sensor Support Methods
 
-- (BOOL) buildSupportedSensorList:(NSData*)data forPidGroup:(NSUInteger)pidGroup {
+- (BOOL)buildSupportedSensorList:(NSData*)data forPidGroup:(NSUInteger)pidGroup {
 	
 	uint8_t* bytes		= (uint8_t*)[data bytes];
 	uint32_t bytesLen	= [data length];
@@ -286,7 +252,7 @@
 	return MORE_PIDS_SUPPORTED(bytes);
 }
 
-- (BOOL) isService01PIDSupported:(NSUInteger)pid {
+- (BOOL)isService01PIDSupported:(NSUInteger)pid {
 	
 	BOOL supported = NO;
 	
@@ -320,8 +286,8 @@
 
 
 
-- (FLScanToolCommand*) commandForNextSensor {
-	
+- (FLScanToolCommand*)commandForNextSensor
+{
 	if(!_sensorScanTargets) {
 		return nil;
 	}
@@ -553,86 +519,42 @@
 #pragma mark -
 #pragma mark ScanToolCommand Generators
 
-- (FLScanToolCommand*) commandForPing {
+- (FLScanToolCommand*)commandForGenericOBD:(FLScanToolMode)mode pid:(unsigned char)pid data:(NSData*)data
+{
 	// Abstract method
 	[self doesNotRecognizeSelector:_cmd];
 	return nil;
 }
 
-
-- (FLScanToolCommand*) commandForGenericOBD:(FLScanToolMode)mode pid:(unsigned char)pid data:(NSData*)data {
+- (FLScanToolCommand*)commandForReadVersionNumber
+{
 	// Abstract method
 	[self doesNotRecognizeSelector:_cmd];
 	return nil;
 }
 
-- (FLScanToolCommand*) commandForReadSerialNumber {
+- (FLScanToolCommand*)commandForReadProtocol
+{
 	// Abstract method
 	[self doesNotRecognizeSelector:_cmd];
 	return nil;
 }
 
-- (FLScanToolCommand*) commandForReadVersionNumber {
+- (FLScanToolCommand*)commandForGetBatteryVoltage
+{
 	// Abstract method
 	[self doesNotRecognizeSelector:_cmd];
 	return nil;
 }
-
-
-- (FLScanToolCommand*) commandForReadProtocol {
-	// Abstract method
-	[self doesNotRecognizeSelector:_cmd];
-	return nil;
-}
-
-
-- (FLScanToolCommand*) commandForReadChipID {
-	// Abstract method
-	[self doesNotRecognizeSelector:_cmd];
-	return nil;
-}
-
-
-- (FLScanToolCommand*) commandForSetAutoSearchMode {
-	// Abstract method
-	[self doesNotRecognizeSelector:_cmd];
-	return nil;
-}
-
-- (FLScanToolCommand*) commandForSetSerialNumber {
-	// Abstract method
-	[self doesNotRecognizeSelector:_cmd];
-	return nil;
-}
-
-- (FLScanToolCommand*) commandForTestForMultipleECUs {
-	// Abstract method
-	[self doesNotRecognizeSelector:_cmd];
-	return nil;
-}
-
-- (FLScanToolCommand*) commandForStartProtocolSearch {
-	// Abstract method
-	[self doesNotRecognizeSelector:_cmd];
-	return nil;
-}
-
-- (FLScanToolCommand*) commandForGetBatteryVoltage {
-	// Abstract method
-	[self doesNotRecognizeSelector:_cmd];
-	return nil;
-}
-
 
 #pragma mark -
 #pragma mark NSStream Event Handling Methods
 
-- (void)stream:(NSStream*)stream handleEvent:(NSStreamEvent)eventCode {
-	
+- (void)stream:(NSStream*)stream handleEvent:(NSStreamEvent)eventCode
+{
 	// Abstract method
 	[self doesNotRecognizeSelector:_cmd];
 }
-
 
 #pragma mark -
 #pragma mark CLLocationManagerDelegate Methods
@@ -650,4 +572,22 @@
 	FLTRACE_ENTRY	
 	FLDEBUG(@"Updated to %@ from %@", [newLocation description], [oldLocation description])
 }
+
+- (void)didReceiveResponses:(NSArray*)responses
+{
+    for (FLScanToolResponse* response in responses) {
+		FLECUSensor *sensor = [FLECUSensor sensorForPID:response.pid];
+		[sensor setCurrentResponse:response];
+		
+		[self didUpdateSensor:sensor];
+	}
+}
+
+- (void)didUpdateSensor:(FLECUSensor*)sensor
+{
+    id <FLScanToolDelegate> delegate = self.delegate;
+    if ([delegate respondsToSelector:@selector(scanTool:didUpdateSensor:)])
+        [delegate scanTool:self didUpdateSensor:sensor];
+}
+
 @end

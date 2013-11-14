@@ -542,8 +542,8 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	return _currentResponse;
 }
 
-- (void)setCurrentResponse:(FLScanToolResponse*)response {
-		
+- (void)setCurrentResponse:(FLScanToolResponse*)response
+{		
 	if(response) {		
 		if(response.pid == self.pid) {
 			[_currentResponse release];
@@ -572,21 +572,21 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (BOOL) isAlphaValue {	
+- (BOOL)isAlphaValue {	
 	return IS_ALPHA_VALUE(self.pid);
 }
 
-- (BOOL) isMultiValue {
+- (BOOL)isMultiValue {
 	return IS_MULTI_VALUE_SENSOR(self.pid);
 }
 
 
-- (NSUInteger) pid {
+- (NSUInteger)pid {
 	return _sensorDescriptor->pid;
 }
 
 
-- (NSData*) data {
+- (NSData*)data {
 	return _currentResponse.data;
 }
 
@@ -637,7 +637,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	}
 }
 
-- (BOOL) isMILActive {
+- (BOOL)isMILActive {
 	if(self.pid == 0x01) {
 		if(calcMILActive([_currentResponse.data bytes], [_currentResponse.data length])) {
 			return YES;
@@ -657,7 +657,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (id) valueForMeasurement1:(BOOL)metric {
+- (id)valueForMeasurement1:(BOOL)metric {
 	
 	if (!_currentResponse.data) {
 		return nil;
@@ -682,7 +682,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	}
 }
 
-- (id) valueForMeasurement2:(BOOL)metric {
+- (id)valueForMeasurement2:(BOOL)metric {
 	
 	if(!!_currentResponse.data || !self.isMultiValue) {
 		return nil;
@@ -869,7 +869,6 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 		return nil;
 	}	
 }
-
 
 - (NSInteger)minValueForMeasurement1:(BOOL)metric {
 	

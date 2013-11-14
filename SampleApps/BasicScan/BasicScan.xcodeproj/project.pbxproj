@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 45;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -20,6 +20,8 @@
 		29AB090D12F8A8660073262E /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29AB090C12F8A8660073262E /* CFNetwork.framework */; };
 		29AB090F12F8A8660073262E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29AB090E12F8A8660073262E /* CoreFoundation.framework */; };
 		29AB091112F8A8660073262E /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29AB091012F8A8660073262E /* CoreLocation.framework */; };
+		4E0352CE1834CB630075B9BA /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4E0352CD1834CB630075B9BA /* Default-568h@2x.png */; };
+		4E0352D01834CB690075B9BA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4E0352CF1834CB690075B9BA /* Images.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +59,8 @@
 		29AB091012F8A8660073262E /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		29B97316FDCFA39411CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		32CA4F630368D1EE00C91783 /* BasicScan_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicScan_Prefix.pch; sourceTree = "<group>"; };
+		4E0352CD1834CB630075B9BA /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		4E0352CF1834CB690075B9BA /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = BasicScan/Images.xcassets; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* BasicScan-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "BasicScan-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -109,6 +113,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				4E0352CD1834CB630075B9BA /* Default-568h@2x.png */,
 				29AB08B812F8A49F0073262E /* OBD2Kit.xcodeproj */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
@@ -131,6 +136,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4E0352CF1834CB690075B9BA /* Images.xcassets */,
 				2899E5210DE3E06400AC0155 /* BasicScanViewController.xib */,
 				28AD733E0D9D9553002E5188 /* MainWindow.xib */,
 				8D1107310486CEB800E47090 /* BasicScan-Info.plist */,
@@ -192,7 +198,7 @@
 			attributes = {
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "BasicScan" */;
-			compatibilityVersion = "Xcode 3.1";
+			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
@@ -232,7 +238,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				28AD733F0D9D9553002E5188 /* MainWindow.xib in Resources */,
+				4E0352D01834CB690075B9BA /* Images.xcassets in Resources */,
 				2899E5220DE3E06400AC0155 /* BasicScanViewController.xib in Resources */,
+				4E0352CE1834CB630075B9BA /* Default-568h@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -264,6 +272,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -272,7 +282,7 @@
 				GCC_PREFIX_HEADER = BasicScan_Prefix.pch;
 				HEADER_SEARCH_PATHS = "../../Classes/**";
 				INFOPLIST_FILE = "BasicScan-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 3.1.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				OTHER_LDFLAGS = (
 					"-all_load",
 					"-ObjC",
@@ -285,13 +295,15 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = BasicScan_Prefix.pch;
 				HEADER_SEARCH_PATHS = "../../Classes/**";
 				INFOPLIST_FILE = "BasicScan-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 3.1.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				OTHER_LDFLAGS = (
 					"-all_load",
 					"-ObjC",

@@ -84,14 +84,13 @@ typedef enum {
 // The time, in seconds, after which a location is considered stale
 #define LOCATION_DECAY_PERIOD				5.0f
 
-
+@class FLECUSensor;
 @protocol FLScanToolDelegate;
 
 @interface FLScanTool : NSObject <CLLocationManagerDelegate> {
 
 	NSMutableArray*				_supportedSensorList;
-	
-	NSArray*					_sensorScanTargets;
+
 	NSInteger					_currentSensorIndex;
 	
 	id<FLScanToolDelegate>		_delegate;
@@ -126,30 +125,16 @@ typedef enum {
 @property(nonatomic, readonly, getter=isWifiScanTool) BOOL wifiScanTool;
 @property(nonatomic, readonly, getter=isEAScanTool) BOOL eaScanTool;
 
-//+ (FLScanTool*) scanToolForDeviceType:(FLScanToolDeviceType) deviceType;
-+ (NSString*) stringForProtocol:(FLScanToolProtocol)protocol;
++ (NSString*)stringForProtocol:(FLScanToolProtocol)protocol;
 
-//
-// These methods are based off of the BluTraxWifi command set, so they may
-// not necessarily have couterparts on other OBD-2 decoder chips.
-// More commands may be added in the future to support custom commands provided
-// by other decoder chip manufacturers.
-//
-- (FLScanToolCommand*) commandForPing;
-- (FLScanToolCommand*) commandForGenericOBD:(FLScanToolMode)mode pid:(unsigned char)pid data:(NSData*)data;
-- (FLScanToolCommand*) commandForReadSerialNumber;
-- (FLScanToolCommand*) commandForReadVersionNumber;
-- (FLScanToolCommand*) commandForReadProtocol;
-- (FLScanToolCommand*) commandForReadChipID;
-- (FLScanToolCommand*) commandForSetAutoSearchMode;
-- (FLScanToolCommand*) commandForSetSerialNumber;
-- (FLScanToolCommand*) commandForTestForMultipleECUs;
-- (FLScanToolCommand*) commandForStartProtocolSearch;
-- (FLScanToolCommand*) commandForGetBatteryVoltage;
+- (FLScanToolCommand*)commandForGenericOBD:(FLScanToolMode)mode pid:(unsigned char)pid data:(NSData*)data;
+- (FLScanToolCommand*)commandForReadVersionNumber;
+- (FLScanToolCommand*)commandForReadProtocol;
+- (FLScanToolCommand*)commandForGetBatteryVoltage;
 
 
 - (void)enqueueCommand:(FLScanToolCommand*)command;
-- (FLScanToolCommand*) dequeueCommand;
+- (FLScanToolCommand*)dequeueCommand;
 - (void)clearCommandQueue;
 
 - (void)sendCommand:(FLScanToolCommand*)command initCommand:(BOOL)initCommand;
@@ -158,15 +143,14 @@ typedef enum {
 - (void)open;
 - (void)close;
 - (void)initScanTool;
-//- (void)startScan;
 - (void)startScanWithSensors:(NSArray* (^)(void))sensors;
 - (void)pauseScan;
 - (void)resumeScanFromPause;
 - (void)cancelScan;
 - (void)dispatchDelegate:(SEL)selector withObject:(id)obj;
 - (void)updateSafetyCheckState;
-- (BOOL) buildSupportedSensorList:(NSData*)data forPidGroup:(NSUInteger)pidGroup;
-- (BOOL) isService01PIDSupported:(NSUInteger)pid;
+- (BOOL)buildSupportedSensorList:(NSData*)data forPidGroup:(NSUInteger)pidGroup;
+- (BOOL)isService01PIDSupported:(NSUInteger)pid;
 - (void)getTroubleCodes;
 - (void)getPendingTroubleCodes;
 - (void)clearTroubleCodes;
@@ -188,7 +172,7 @@ typedef enum {
 - (void)scanToolDidDisconnect:(FLScanTool*)scanTool;
 - (void)scanToolDidFailToInitialize:(FLScanTool*)scanTool;
 - (void)scanTool:(FLScanTool*)scanTool didSendCommand:(FLScanToolCommand*)command;
-- (void)scanTool:(FLScanTool*)scanTool didReceiveResponse:(NSArray*)responses;
+- (void)scanTool:(FLScanTool*)scanTool didUpdateSensor:(FLECUSensor*)sensor;
 - (void)scanTool:(FLScanTool*)scanTool didReceiveVoltage:(NSString*)voltage;
 - (void)scanTool:(FLScanTool*)scanTool didTimeoutOnCommand:(FLScanToolCommand*)command;
 - (void)scanTool:(FLScanTool*)scanTool didReceiveError:(NSError*)error;

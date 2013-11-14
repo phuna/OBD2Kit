@@ -14,4 +14,6 @@ typedef NSArray* (^SensorsBlock)(void);
 
 @property (nonatomic, copy) SensorsBlock sensorsBlock;
 
+- (void)didReceiveResponses:(NSArray*)responses;
+
 @end
