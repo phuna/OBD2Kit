@@ -1,5 +1,5 @@
 /*
- *  FLSimScanTool.h
+ *  FLScanToolResponse.m
  *  OBD2Kit
  *
  *  Copyright (c) 2009-2011 FuzzyLuke Inc.
@@ -18,11 +18,31 @@
  *
  */
 
-#import <Foundation/Foundation.h>
-#import "FLScanTool.h"
+#import "FLScanToolResponse.h"
 
-@interface FLSimScanTool : FLScanTool {
+@implementation FLScanToolResponse
 
+- (id)init {
+	if(self = [super init]) {
+		_timestamp					= [[NSDate date] retain];
+	}
+	
+	return self;
+}
+
+- (void)setMode:(NSUInteger)mode
+{
+	_mode = (mode ^ 0x40);
+}
+
+- (void)dealloc
+{
+	[_data release];
+	[_responseData release];
+	[_timestamp release];
+	[_scanToolName release];
+    
+	[super dealloc];
 }
 
 @end

@@ -69,18 +69,13 @@ typedef struct pid_support_map_t {
 
 
 #define MORE_PIDS_SUPPORTED(data)					((data[3] & 1) != 0)
-//#define MORE_PIDS_SUPPORTED(pSupportMap)			(pSupportMap->pid1F != 0)
 
-
-@interface FLScanToolResponse : NSObject<NSCoding> {
-	
+@interface FLScanToolResponse : NSObject {
 	NSString*				_scanToolName;
 	NSInteger				_protocol;
 	
 	NSData*					_responseData;
 	NSString*				_responseString;
-	
-	BOOL					_isError;
 	
 	NSDate*					_timestamp;
 	NSUInteger				_priority;
@@ -88,14 +83,7 @@ typedef struct pid_support_map_t {
 	NSUInteger				_ecuAddress;
 	NSData*					_data;
 	NSUInteger				_mode;
-	NSUInteger				_crc;	
-
-	double					_latitude;
-	double					_longitude;
-	double					_altitude;
-	double					_locationHorizontalAccuracy;
-	double					_locationVerticalAccuracy;
-	double					_gpsSpeed;
+	NSUInteger				_crc;
 }
 
 @property (nonatomic, retain) NSString* scanToolName;
@@ -111,15 +99,6 @@ typedef struct pid_support_map_t {
 @property (nonatomic, assign) OBD2Sensor pid;
 @property (nonatomic, assign) NSUInteger crc;
 @property (nonatomic, retain) NSData* data;
-@property (nonatomic, assign) double latitude;
-@property (nonatomic, assign) double longitude;
-@property (nonatomic, assign) double altitude;
-@property (nonatomic, assign) double horizontalAccuracy;
-@property (nonatomic, assign) double verticalAccuracy;
-@property (nonatomic, assign) double gpsSpeed;
-
-
-- (void)updateLocation:(CLLocation*)location;
-- (id) proxyForJson;
+@property (strong, nonatomic) CLLocation *location;
 
 @end

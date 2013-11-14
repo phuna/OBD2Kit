@@ -34,14 +34,14 @@ const GoLinkRequestFrame g_VehicleBusTypeRequestFrame = {
 };
 
 @interface GoLinkCommand (Private)
-- (NSData*) serializeGoLinkRequestFrame;
+- (NSData*)serializeGoLinkRequestFrame;
 @end
 
 
 #pragma mark -
 @implementation GoLinkCommand
 
-- (NSData*) data {	
+- (NSData*)data {	
 	NSInteger requestLength = _requestFrame.header.length + sizeof(GoLinkFrameHeader);
 	
 	if (requestLength > sizeof(GoLinkFrameHeader)) {
@@ -129,7 +129,7 @@ const GoLinkRequestFrame g_VehicleBusTypeRequestFrame = {
 #pragma mark -
 #pragma mark Private Methods
 
-- (NSData*) serializeGoLinkRequestFrame {
+- (NSData*)serializeGoLinkRequestFrame {
 	return nil;
 }
 

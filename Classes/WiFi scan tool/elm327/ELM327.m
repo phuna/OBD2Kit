@@ -26,7 +26,7 @@
 #import "FLLogging.h"
 
 @interface ELM327 (Private)
-- (FLScanToolCommand*) commandForInitState:(ELM327InitState)state;
+- (FLScanToolCommand*)commandForInitState:(ELM327InitState)state;
 - (void)handleInputEvent:(NSStreamEvent)eventCode;
 - (void)handleOutputEvent:(NSStreamEvent)eventCode;
 - (void)readInput;
@@ -41,7 +41,7 @@
 @synthesize initState	= _initState;
 
 
-//- (id) init {
+//- (id)init {
 //	if (self = [super init]) {
 //		_deviceType		= kScanToolDeviceTypeGoLink;
 //	}
@@ -56,7 +56,7 @@
 #pragma mark -
 #pragma mark ScanTool Initialization
 
-- (FLScanToolCommand*) commandForInitState:(ELM327InitState)state {
+- (FLScanToolCommand*)commandForInitState:(ELM327InitState)state {
 	
 	FLScanToolCommand* cmd = nil;
 	
@@ -79,7 +79,7 @@
 			
 		case ELM327_INIT_STATE_PID_SEARCH:
 			cmd = (FLScanToolCommand*)[ELM327Command commandForOBD2:kScanToolModeRequestCurrentPowertrainDiagnosticData 
-															  pid:_currentPIDGroup 
+															  pid:_currentPIDGroup
 															 data:nil];
 			break;
 		
@@ -90,9 +90,6 @@
 	
 	return cmd;
 }
-
-
-
 
 - (void)initScanTool {
 	
@@ -286,123 +283,93 @@
 
 - (void)readInput {
 	FLTRACE_ENTRY
-	@try {
-		NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - _readBufLength)];
-		FLDEBUG(@"Read %d bytes", readLength)
-		FLDEBUG(@"_readBufLength = %d", _readBufLength)
-		
-		if (readLength != -1) {
-			_readBufLength += readLength;
-		}
-		
-		if(ELM_READ_COMPLETE(_readBuf, (_readBufLength-1))) {
-			
-			_state			= STATE_PROCESSING;
-			
-			// Trim the ending '\r\r>' characters
-			_readBuf[(_readBufLength - 3)] = 0x00;
-			_readBufLength			-= 3;
-			
-			char* asciistr			= (char*)_readBuf;
-			FLDEBUG(@"Data Returned: %s", asciistr)
-			
-			if(ELM_ERROR(asciistr)) {
-				FLERROR(@"Error response from ELM327 (state=%d): %s", _initState, asciistr)
-				_initState	= ELM327_INIT_STATE_RESET;
-				_state		= STATE_INIT;
-			}
-			else {
-				if(!_parser) {
-					_parser = [[ELM327ResponseParser alloc] initWithBytes:_readBuf length:_readBufLength];
-				}
-				else {
-					[_parser setBytes:_readBuf length:_readBufLength];
-				}
-				
-				NSArray* responses	= [_parser parseResponse:_protocol];
-				if(responses) {
-					if(self.useLocation) {
-						[responses makeObjectsPerformSelector:@selector(updateLocation:) withObject:self.currentLocation];
-					}					
-					[self dispatchDelegate:@selector(scanTool:didReceiveResponse:) withObject:responses];
-				}
-				else {
-					[self dispatchDelegate:@selector(scanTool:didReceiveResponse:) withObject:nil];
-				}
-
-				
-				_state = STATE_IDLE;
-				[self sendCommand:[self dequeueCommand] initCommand:YES];
-			}
-		}	
-		else {
-			_state = STATE_WAITING;
-		}
-	}
-	@catch (NSException * e) {
-		FLEXCEPTION(e)
-		CLEAR_READBUF()
-		_state = STATE_INIT;
-	}
-	@finally {
-		if(STATE_IDLE() || STATE_INIT()) {
-			CLEAR_READBUF()
-		}
-	}
+    NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - _readBufLength)];
+    FLDEBUG(@"Read %d bytes", readLength)
+    FLDEBUG(@"_readBufLength = %d", _readBufLength)
+    
+    if (readLength != -1) {
+        _readBufLength += readLength;
+    }
+    
+    if(ELM_READ_COMPLETE(_readBuf, (_readBufLength-1))) {
+        
+        _state			= STATE_PROCESSING;
+        
+        // Trim the ending '\r\r>' characters
+        _readBuf[(_readBufLength - 3)] = 0x00;
+        _readBufLength			-= 3;
+        
+        char* asciistr			= (char*)_readBuf;
+        FLDEBUG(@"Data Returned: %s", asciistr)
+        
+        if(ELM_ERROR(asciistr)) {
+            FLERROR(@"Error response from ELM327 (state=%d): %s", _initState, asciistr)
+            _initState	= ELM327_INIT_STATE_RESET;
+            _state		= STATE_INIT;
+        }
+        else {
+            if(!_parser) {
+                _parser = [[ELM327ResponseParser alloc] initWithBytes:_readBuf length:_readBufLength];
+            }
+            else {
+                [_parser setBytes:_readBuf length:_readBufLength];
+            }
+            
+            NSArray* responses	= [_parser parseResponse:_protocol];
+            if(responses && self.useLocation)
+                [responses makeObjectsPerformSelector:@selector(setLocation:) withObject:self.currentLocation];
+            
+            [self didReceiveResponses:responses];
+            
+            _state = STATE_IDLE;
+            [self sendCommand:[self dequeueCommand] initCommand:YES];
+        }
+    }	
+    else {
+        _state = STATE_WAITING;
+    }
 }
 
-
-- (void)readVoltageResponse {
+- (void)readVoltageResponse
+{
 	FLTRACE_ENTRY
-	@try {
-		NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - _readBufLength)];
-		FLDEBUG(@"Read %d bytes", readLength)
-		_readBufLength += readLength;
-		
-		if(ELM_READ_COMPLETE(_readBuf, (_readBufLength-1))) {
-			
-			_state			= STATE_PROCESSING;
-			
-			// Trim the ending '\r\n>' characters
-			_readBuf[(_readBufLength - 3)] = 0x00;
-			_readBufLength			-= 3;
-			
-			char* asciistr			= (char*)_readBuf;
-			FLDEBUG(@"Data Returned: %s", asciistr)
-			
-			if(ELM_ERROR(asciistr)) {
-				FLERROR(@"Error response from ELM327 (state=%d): %s", _initState, asciistr)
-				_initState	= ELM327_INIT_STATE_RESET;
-				_state		= STATE_INIT;
-			}
-			else {				
-				[self dispatchDelegate:@selector(scanTool:didReceiveVoltage:) withObject:[NSString stringWithCString:asciistr encoding:NSASCIIStringEncoding]];
-				_state		= STATE_IDLE;
-				[self sendCommand:[self dequeueCommand] initCommand:YES];
-			}
-		}	
-		else {
-			_state = STATE_WAITING;
-		}
-	}
-	@catch (NSException* e) {
-		FLEXCEPTION(e)
-		CLEAR_READBUF()
-		_state = STATE_INIT;
-	}
-	@finally {
-		if(STATE_IDLE() || STATE_INIT()) {
-			CLEAR_READBUF()
-			_waitingForVoltageCommand	= NO;
-		}
-	}
+    
+    NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - _readBufLength)];
+    FLDEBUG(@"Read %d bytes", readLength)
+    _readBufLength += readLength;
+    
+    if(ELM_READ_COMPLETE(_readBuf, (_readBufLength-1))) {
+        
+        _state			= STATE_PROCESSING;
+        
+        // Trim the ending '\r\n>' characters
+        _readBuf[(_readBufLength - 3)] = 0x00;
+        _readBufLength			-= 3;
+        
+        char* asciistr			= (char*)_readBuf;
+        FLDEBUG(@"Data Returned: %s", asciistr)
+        
+        if(ELM_ERROR(asciistr)) {
+            FLERROR(@"Error response from ELM327 (state=%d): %s", _initState, asciistr)
+            _initState	= ELM327_INIT_STATE_RESET;
+            _state		= STATE_INIT;
+        }
+        else {
+            [self dispatchDelegate:@selector(scanTool:didReceiveVoltage:) withObject:[NSString stringWithCString:asciistr encoding:NSASCIIStringEncoding]];
+            _state		= STATE_IDLE;
+            [self sendCommand:[self dequeueCommand] initCommand:YES];
+        }
+    }	
+    else {
+        _state = STATE_WAITING;
+    }
 }
 
 #pragma mark -
 #pragma mark NSStream Event Handling Methods
 
-- (void)stream:(NSStream*)stream handleEvent:(NSStreamEvent)eventCode {
-	
+- (void)stream:(NSStream*)stream handleEvent:(NSStreamEvent)eventCode
+{
 	if(stream == _inputStream) {
 		[self handleInputEvent:eventCode];
 	}
@@ -414,10 +381,8 @@
 	}	
 }
 
-
-
-- (void)handleInputEvent:(NSStreamEvent)eventCode {
-	
+- (void)handleInputEvent:(NSStreamEvent)eventCode
+{
 	if(_inputStream) {
 		switch (eventCode) {
 			case NSStreamEventNone:
@@ -517,20 +482,20 @@
 #pragma mark -
 #pragma mark ScanToolCommand Generators
 
-- (FLScanToolCommand*) commandForGenericOBD:(FLScanToolMode)mode pid:(unsigned char)pid data:(NSData*)data {	
+- (FLScanToolCommand*)commandForGenericOBD:(FLScanToolMode)mode pid:(unsigned char)pid data:(NSData*)data {	
 	return (FLScanToolCommand*)[ELM327Command commandForOBD2:mode pid:pid data:data];
 }
 
-- (FLScanToolCommand*) commandForReadVersionNumber {
+- (FLScanToolCommand*)commandForReadVersionNumber {
 	return (FLScanToolCommand*)[ELM327Command commandForReadVersionID];
 }
 
 
-- (FLScanToolCommand*) commandForReadProtocol {
+- (FLScanToolCommand*)commandForReadProtocol {
 	return (FLScanToolCommand*)[ELM327Command commandForReadProtocol];
 }
 
-- (FLScanToolCommand*) commandForGetBatteryVoltage {
+- (FLScanToolCommand*)commandForGetBatteryVoltage {
 	return (FLScanToolCommand*)[ELM327Command commandForReadVoltage];
 }
 

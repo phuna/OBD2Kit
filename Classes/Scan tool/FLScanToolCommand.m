@@ -1,5 +1,5 @@
 /*
- *  FLScanToolController.m
+ *  FLScanToolCommand.m
  *  OBD2Kit
  *
  *  Copyright (c) 2009-2011 FuzzyLuke Inc.
@@ -18,9 +18,34 @@
  *
  */
 
-#import "FLScanToolController.h"
+#import "FLScanToolCommand.h"
+#import "FLScanTool.h"
+
+@implementation FLScanToolCommand
+
+@synthesize mode	= _mode,
+			pid		= _pid;
+
+- (NSData*)data {
+	// Abstract method
+	[self doesNotRecognizeSelector:_cmd];
+	return nil;
+}
+
+- (void)setData:(NSData *)data {
+	[_data release];
+	_data = nil;
+	_data = [[NSData alloc] initWithData:data];
+}
 
 
-@implementation FLScanToolController
++ (FLScanToolCommand*) commandForMode:(int)mode 
+								pid:(NSUInteger)pid 
+							   data:(NSData*)data {
+
+	// Abstract method
+	[self doesNotRecognizeSelector:_cmd];
+	return nil;
+}
 
 @end

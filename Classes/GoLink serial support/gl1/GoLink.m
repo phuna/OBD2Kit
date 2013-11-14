@@ -29,7 +29,7 @@ NSString* const kGoLinkProtocolString	= @"com.goPoint.p1";
 NSString* const kGoLinkScanToolName		= @"GoLink";
 
 @interface GoLink (Private)
-- (FLScanToolCommand*) commandForInitState:(GoLinkInitState)state;
+- (FLScanToolCommand*)commandForInitState:(GoLinkInitState)state;
 - (void)handleInitReadData;
 - (void)processSystemFrame:(GoLinkSystemFrame*)frame;
 - (void)processErrorFrame:(GoLinkErrorFrame*)frame;
@@ -43,7 +43,7 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 #pragma mark -
 @implementation GoLink
 
-- (id) init {
+- (id)init {
 	if (self = [super init]) {
 		_protocolString		= [kGoLinkProtocolString copy];
 //		_deviceType			= kScanToolDeviceTypeGoLink;
@@ -59,7 +59,7 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 #pragma mark -
 #pragma mark ScanTool Initialization
 
-- (FLScanToolCommand*) commandForInitState:(GoLinkInitState)state {
+- (FLScanToolCommand*)commandForInitState:(GoLinkInitState)state {
 	
 	FLScanToolCommand* cmd = nil;
 	
@@ -312,108 +312,90 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 }
 
 
-- (void)processDataFrame:(uint8_t*)data length:(NSUInteger)length {
-	
-	//GoLinkDataFrame* frame			= (GoLinkDataFrame*)data;
+- (void)processDataFrame:(uint8_t*)data length:(NSUInteger)length
+{
 	GoLinkResponseParser* parser	= [[GoLinkResponseParser alloc] initWithBytes:data length:length];
 	NSArray* responses				= [parser parseResponse:_protocol];
 	
-	@try {
-		if(responses && [responses count] > 0) {
-			FLDEBUG(@"Received %d responses", [responses count])
-			
-			
-			if(self.useLocation) {
-				[responses makeObjectsPerformSelector:@selector(updateLocation:) withObject:self.currentLocation];
-			}
-			
-			if (STATE_INIT() && _initState == GOLINK_INIT_STATE_PID_SEARCH) {
-				
-				//uint8_t pid = frame->data[0];
-				
-				//if (pid != 0x00 && pid != 0x20 && pid != 0x40) {
-				//	FLERROR(@"Received erroneous PID during init search ($%02X)", pid)
-				//	return;
-				//}
-				
-				[self dispatchDelegate:@selector(scanToolDidConnect:) withObject:nil];
-				
-				BOOL morePIDs = NO;
-				BOOL goodPIDsFound = NO;
-				for (FLScanToolResponse* resp in responses) {
-					FLDEBUG(@"resp.rawData: %@", resp.rawData)
-					
-					GoLinkDataFrame frame[[resp.rawData length]];
-					[resp.rawData getBytes:frame];
-					
-					uint8_t pid = frame->data[0];
-					
-					FLDEBUG(@"pid: %d", pid)
-					if (pid != 0x00 && pid != 0x20 && pid != 0x40) {
-						FLERROR(@"Received erroneous PID during init search ($%02X)", pid)
-						continue;
-					}
-					
-					BOOL tmpMorePIDs = [self buildSupportedSensorList:resp.data forPidGroup:_currentPIDGroup];
-					if (!morePIDs && tmpMorePIDs) {
-						morePIDs = YES;
-					}
-					goodPIDsFound = YES;
-				}
-				FLDEBUG(@"More PIDs: %@", (morePIDs) ? @"YES" : @"NO")
-				
-				BOOL extendPIDSearch	= NO;
-				if (!extendPIDSearch && morePIDs) {
-					extendPIDSearch	= YES;
-				}				
-				
-				if (extendPIDSearch) {
-					_currentPIDGroup		+= (extendPIDSearch) ? 0x20 : 0x00;
-					
-					if (_currentPIDGroup > 0x40) {
-						_initState			<<= 1;
-						_currentPIDGroup	= 0x00;
-					}
-				}
-				else {
-					if(goodPIDsFound) { //keep the scantool in init state until it gets good PID responses
-						_initState				<<= 1;
-					}
-					_currentPIDGroup		= 0x00;
-				}
-			}
-			else {
-				[self dispatchDelegate:@selector(scanTool:didReceiveResponse:) withObject:responses];
-			}
-		}
-	}
-	@catch (NSException * e) {
-		FLEXCEPTION(e)
-	}
-	@finally {
-		[parser release];
-	}
+    if(responses && [responses count] > 0) {
+        FLDEBUG(@"Received %d responses", [responses count])
+        
+        if(self.useLocation) {
+            [responses makeObjectsPerformSelector:@selector(setLocation:) withObject:self.currentLocation];
+        }
+        
+        if (STATE_INIT() && _initState == GOLINK_INIT_STATE_PID_SEARCH) {
+            
+            [self dispatchDelegate:@selector(scanToolDidConnect:) withObject:nil];
+            
+            BOOL morePIDs = NO;
+            BOOL goodPIDsFound = NO;
+            for (FLScanToolResponse* resp in responses) {
+                FLDEBUG(@"resp.rawData: %@", resp.rawData)
+                
+                GoLinkDataFrame frame[[resp.rawData length]];
+                [resp.rawData getBytes:frame];
+                
+                uint8_t pid = frame->data[0];
+                
+                FLDEBUG(@"pid: %d", pid)
+                if (pid != 0x00 && pid != 0x20 && pid != 0x40) {
+                    FLERROR(@"Received erroneous PID during init search ($%02X)", pid)
+                    continue;
+                }
+                
+                BOOL tmpMorePIDs = [self buildSupportedSensorList:resp.data forPidGroup:_currentPIDGroup];
+                if (!morePIDs && tmpMorePIDs) {
+                    morePIDs = YES;
+                }
+                goodPIDsFound = YES;
+            }
+            FLDEBUG(@"More PIDs: %@", (morePIDs) ? @"YES" : @"NO")
+            
+            BOOL extendPIDSearch	= NO;
+            if (!extendPIDSearch && morePIDs) {
+                extendPIDSearch	= YES;
+            }
+            
+            if (extendPIDSearch) {
+                _currentPIDGroup		+= (extendPIDSearch) ? 0x20 : 0x00;
+                
+                if (_currentPIDGroup > 0x40) {
+                    _initState			<<= 1;
+                    _currentPIDGroup	= 0x00;
+                }
+            }
+            else {
+                if(goodPIDsFound) { //keep the scantool in init state until it gets good PID responses
+                    _initState				<<= 1;
+                }
+                _currentPIDGroup		= 0x00;
+            }
+        }
+        else {
+            [self didReceiveResponses:responses];
+        }
+    }
 }
 
 #pragma mark -
 #pragma mark ScanToolCommand Generators
 
-- (FLScanToolCommand*) commandForGenericOBD:(FLScanToolMode)mode pid:(unsigned char)pid data:(NSData*)data {	
+- (FLScanToolCommand*)commandForGenericOBD:(FLScanToolMode)mode pid:(unsigned char)pid data:(NSData*)data {	
 	return [GoLinkCommand commandForMode:mode pid:pid data:data];
 }
 
-- (FLScanToolCommand*) commandForReadVersionNumber {
-	return (FLScanToolCommand*)nil;
+- (FLScanToolCommand*)commandForReadVersionNumber {
+	return nil;
 }
 
-
-- (FLScanToolCommand*) commandForReadProtocol {
-	return (FLScanToolCommand*)nil;
+- (FLScanToolCommand*)commandForReadProtocol {
+	return nil;
 }
 
-- (FLScanToolCommand*) commandForGetBatteryVoltage {
+- (FLScanToolCommand*)commandForGetBatteryVoltage {
 	// GoLink (ne GL1) does not currently support this
-	return (FLScanToolCommand*)nil;
+	return nil;
 }
 
 @end
