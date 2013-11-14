@@ -283,86 +283,117 @@
 
 - (void)readInput {
 	FLTRACE_ENTRY
-    NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - _readBufLength)];
-    FLDEBUG(@"Read %d bytes", readLength)
-    FLDEBUG(@"_readBufLength = %d", _readBufLength)
-    
-    if (readLength != -1) {
-        _readBufLength += readLength;
-    }
-    
-    if(ELM_READ_COMPLETE(_readBuf, (_readBufLength-1))) {
-        
-        _state			= STATE_PROCESSING;
-        
-        // Trim the ending '\r\r>' characters
-        _readBuf[(_readBufLength - 3)] = 0x00;
-        _readBufLength			-= 3;
-        
-        char* asciistr			= (char*)_readBuf;
-        FLDEBUG(@"Data Returned: %s", asciistr)
-        
-        if(ELM_ERROR(asciistr)) {
-            FLERROR(@"Error response from ELM327 (state=%d): %s", _initState, asciistr)
-            _initState	= ELM327_INIT_STATE_RESET;
-            _state		= STATE_INIT;
-        }
-        else {
-            if(!_parser) {
-                _parser = [[ELM327ResponseParser alloc] initWithBytes:_readBuf length:_readBufLength];
-            }
-            else {
-                [_parser setBytes:_readBuf length:_readBufLength];
-            }
-            
-            NSArray* responses	= [_parser parseResponse:_protocol];
-            if(responses && self.useLocation)
-                [responses makeObjectsPerformSelector:@selector(setLocation:) withObject:self.currentLocation];
-            
-            [self didReceiveResponses:responses];
-            
-            _state = STATE_IDLE;
-            [self sendCommand:[self dequeueCommand] initCommand:YES];
-        }
-    }	
-    else {
-        _state = STATE_WAITING;
-    }
+	@try {
+		NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - _readBufLength)];
+		FLDEBUG(@"Read %d bytes", readLength)
+		FLDEBUG(@"_readBufLength = %d", _readBufLength)
+		
+		if (readLength != -1) {
+			_readBufLength += readLength;
+		}
+		
+		if(ELM_READ_COMPLETE(_readBuf, (_readBufLength-1))) {
+			
+			_state			= STATE_PROCESSING;
+			
+			// Trim the ending '\r\r>' characters
+			_readBuf[(_readBufLength - 3)] = 0x00;
+			_readBufLength			-= 3;
+			
+			char* asciistr			= (char*)_readBuf;
+			FLDEBUG(@"Data Returned: %s", asciistr)
+			
+			if(ELM_ERROR(asciistr)) {
+				FLERROR(@"Error response from ELM327 (state=%d): %s", _initState, asciistr)
+				_initState	= ELM327_INIT_STATE_RESET;
+				_state		= STATE_INIT;
+			}
+			else {
+				if(!_parser) {
+					_parser = [[ELM327ResponseParser alloc] initWithBytes:_readBuf length:_readBufLength];
+				}
+				else {
+					[_parser setBytes:_readBuf length:_readBufLength];
+				}
+				
+				NSArray* responses	= [_parser parseResponse:_protocol];
+				if(responses) {
+					if(self.useLocation) {
+						[responses makeObjectsPerformSelector:@selector(setLocation:) withObject:self.currentLocation];
+					}					
+//					[self dispatchDelegate:@selector(scanTool:didReceiveResponse:) withObject:responses];
+                    [self didReceiveResponses:responses];
+				}
+				else {
+					[self dispatchDelegate:@selector(scanTool:didReceiveResponse:) withObject:nil];
+				}
+
+				
+				_state = STATE_IDLE;
+				[self sendCommand:[self dequeueCommand] initCommand:YES];
+			}
+		}	
+		else {
+			_state = STATE_WAITING;
+		}
+	}
+	@catch (NSException * e) {
+		FLEXCEPTION(e)
+		CLEAR_READBUF()
+		_state = STATE_INIT;
+	}
+	@finally {
+		if(STATE_IDLE() || STATE_INIT()) {
+			CLEAR_READBUF()
+		}
+	}
 }
 
-- (void)readVoltageResponse
-{
+
+- (void)readVoltageResponse {
 	FLTRACE_ENTRY
-    
-    NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - _readBufLength)];
-    FLDEBUG(@"Read %d bytes", readLength)
-    _readBufLength += readLength;
-    
-    if(ELM_READ_COMPLETE(_readBuf, (_readBufLength-1))) {
-        
-        _state			= STATE_PROCESSING;
-        
-        // Trim the ending '\r\n>' characters
-        _readBuf[(_readBufLength - 3)] = 0x00;
-        _readBufLength			-= 3;
-        
-        char* asciistr			= (char*)_readBuf;
-        FLDEBUG(@"Data Returned: %s", asciistr)
-        
-        if(ELM_ERROR(asciistr)) {
-            FLERROR(@"Error response from ELM327 (state=%d): %s", _initState, asciistr)
-            _initState	= ELM327_INIT_STATE_RESET;
-            _state		= STATE_INIT;
-        }
-        else {
-            [self dispatchDelegate:@selector(scanTool:didReceiveVoltage:) withObject:[NSString stringWithCString:asciistr encoding:NSASCIIStringEncoding]];
-            _state		= STATE_IDLE;
-            [self sendCommand:[self dequeueCommand] initCommand:YES];
-        }
-    }	
-    else {
-        _state = STATE_WAITING;
-    }
+	@try {
+		NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - _readBufLength)];
+		FLDEBUG(@"Read %d bytes", readLength)
+		_readBufLength += readLength;
+		
+		if(ELM_READ_COMPLETE(_readBuf, (_readBufLength-1))) {
+			
+			_state			= STATE_PROCESSING;
+			
+			// Trim the ending '\r\n>' characters
+			_readBuf[(_readBufLength - 3)] = 0x00;
+			_readBufLength			-= 3;
+			
+			char* asciistr			= (char*)_readBuf;
+			FLDEBUG(@"Data Returned: %s", asciistr)
+			
+			if(ELM_ERROR(asciistr)) {
+				FLERROR(@"Error response from ELM327 (state=%d): %s", _initState, asciistr)
+				_initState	= ELM327_INIT_STATE_RESET;
+				_state		= STATE_INIT;
+			}
+			else {				
+				[self dispatchDelegate:@selector(scanTool:didReceiveVoltage:) withObject:[NSString stringWithCString:asciistr encoding:NSASCIIStringEncoding]];
+				_state		= STATE_IDLE;
+				[self sendCommand:[self dequeueCommand] initCommand:YES];
+			}
+		}	
+		else {
+			_state = STATE_WAITING;
+		}
+	}
+	@catch (NSException* e) {
+		FLEXCEPTION(e)
+		CLEAR_READBUF()
+		_state = STATE_INIT;
+	}
+	@finally {
+		if(STATE_IDLE() || STATE_INIT()) {
+			CLEAR_READBUF()
+			_waitingForVoltageCommand	= NO;
+		}
+	}
 }
 
 #pragma mark -
