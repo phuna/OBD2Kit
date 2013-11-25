@@ -20,7 +20,7 @@
 
 
 #define VERBOSE_DEBUG			
-//#undef VERBOSE_DEBUG
+#undef VERBOSE_DEBUG
 
 #define CONCAT(s1, s2) s1 s2
 

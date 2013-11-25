@@ -35,28 +35,21 @@ NSString *const kELM327ReadDeviceDescription		= @"AT @1";
 NSString *const kELM327ReadDeviceIdentifier			= @"AT @2";
 NSString *const kELM327SetDeviceIdentifier			= @"AT @3";
 
-
-
 @implementation ELM327Command
 
 @synthesize commandString	= _command;
-
-
 
 + (ELM327Command*) commandForOBD2:(FLScanToolMode)mode pid:(NSUInteger)pid data:(NSData*)data {
 	
 	ELM327Command* cmd = nil;
 	
-	if (pid >= 0x00 && pid <= 0x4E) {
-		cmd = [[ELM327Command alloc] initWithCommandString:[NSString stringWithFormat:@"%02x %02x", (NSUInteger)mode, pid]];	
-	}
-	else {
-		cmd = [[ELM327Command alloc] initWithCommandString:[NSString stringWithFormat:@"%02x", (NSUInteger)mode]];	
-	}
+	if (pid <= OBD2SensorLast)
+		cmd = [[ELM327Command alloc] initWithCommandString:[NSString stringWithFormat:@"%02x %02x", (NSUInteger)mode, pid]];
+	else
+		cmd = [[ELM327Command alloc] initWithCommandString:[NSString stringWithFormat:@"%02x", (NSUInteger)mode]];
 
-	if(data) {
+	if (data)
 		cmd.data = data;
-	}
 	
 	return [cmd autorelease];
 }

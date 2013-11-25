@@ -13,16 +13,6 @@
 		29AB07E712F876DD0073262E /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29AB07E612F876DD0073262E /* CFNetwork.framework */; };
 		29AB07EB12F877360073262E /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29AB07EA12F877360073262E /* CoreFoundation.framework */; };
 		29AB081112F879FD0073262E /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29AB081012F879FD0073262E /* CoreLocation.framework */; };
-		4EF9FA1C1834C7200055DF04 /* FLEAController.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EF9F9F91834C7200055DF04 /* FLEAController.h */; };
-		4EF9FA1D1834C7200055DF04 /* FLEAController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EF9F9FA1834C7200055DF04 /* FLEAController.m */; };
-		4EF9FA1E1834C7200055DF04 /* FLEAScanTool.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EF9F9FB1834C7200055DF04 /* FLEAScanTool.h */; };
-		4EF9FA1F1834C7200055DF04 /* FLEAScanTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EF9F9FC1834C7200055DF04 /* FLEAScanTool.m */; };
-		4EF9FA201834C7200055DF04 /* GoLink.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EF9F9FE1834C7200055DF04 /* GoLink.h */; };
-		4EF9FA211834C7200055DF04 /* GoLink.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EF9F9FF1834C7200055DF04 /* GoLink.m */; };
-		4EF9FA221834C7200055DF04 /* GoLinkCommand.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EF9FA001834C7200055DF04 /* GoLinkCommand.h */; };
-		4EF9FA231834C7200055DF04 /* GoLinkCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EF9FA011834C7200055DF04 /* GoLinkCommand.m */; };
-		4EF9FA241834C7200055DF04 /* GoLinkResponseParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EF9FA021834C7200055DF04 /* GoLinkResponseParser.h */; };
-		4EF9FA251834C7200055DF04 /* GoLinkResponseParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EF9FA031834C7200055DF04 /* GoLinkResponseParser.m */; };
 		4EF9FA261834C7200055DF04 /* FLScanTool.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EF9FA051834C7200055DF04 /* FLScanTool.h */; };
 		4EF9FA271834C7200055DF04 /* FLScanTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4EF9FA061834C7200055DF04 /* FLScanTool.m */; };
 		4EF9FA281834C7200055DF04 /* FLScanTool_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 4EF9FA071834C7200055DF04 /* FLScanTool_Private.h */; };
@@ -115,11 +105,6 @@
 		0867D691FE84028FC02AAC07 /* OBD2Kit */ = {
 			isa = PBXGroup;
 			children = (
-				4EF9F9F81834C7200055DF04 /* GoLink serial support */,
-				4EF9FA041834C7200055DF04 /* Scan tool */,
-				4EF9FA0E1834C7200055DF04 /* Sensor */,
-				4EF9FA121834C7200055DF04 /* WiFi scan tool */,
-				29AB068312F861A90073262E /* Utils */,
 				08FB77AEFE84172EC02AAC07 /* Classes */,
 				32C88DFF0371C24200C91783 /* Other Sources */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
@@ -142,6 +127,11 @@
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				4EF9F9F81834C7200055DF04 /* GoLink serial support */,
+				4EF9FA041834C7200055DF04 /* Scan tool */,
+				4EF9FA0E1834C7200055DF04 /* Sensor */,
+				4EF9FA121834C7200055DF04 /* WiFi scan tool */,
+				29AB068312F861A90073262E /* Utils */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -254,21 +244,16 @@
 				4EF9FA321834C7200055DF04 /* ELM327.h in Headers */,
 				4EF9FA381834C7200055DF04 /* FLWifiScanTool.h in Headers */,
 				4EF9FA361834C7200055DF04 /* ELM327ResponseParser.h in Headers */,
-				4EF9FA221834C7200055DF04 /* GoLinkCommand.h in Headers */,
 				AA747D9F0F9514B9006C5449 /* OBD2Kit_Prefix.pch in Headers */,
 				29AB068912F861A90073262E /* FLLogging.h in Headers */,
 				29AB075412F865A00073262E /* NSStreamAdditions.h in Headers */,
 				4EF9FA261834C7200055DF04 /* FLScanTool.h in Headers */,
 				4EF9FA311834C7200055DF04 /* OBD2Sensors.h in Headers */,
 				4EF9FA2D1834C7200055DF04 /* FLScanToolResponseParser.h in Headers */,
-				4EF9FA201834C7200055DF04 /* GoLink.h in Headers */,
-				4EF9FA241834C7200055DF04 /* GoLinkResponseParser.h in Headers */,
 				4EF9FA341834C7200055DF04 /* ELM327Command.h in Headers */,
 				4EF9FA2B1834C7200055DF04 /* FLScanToolResponse.h in Headers */,
 				4EF9FA291834C7200055DF04 /* FLScanToolCommand.h in Headers */,
-				4EF9FA1C1834C7200055DF04 /* FLEAController.h in Headers */,
 				4EF9FA2F1834C7200055DF04 /* FLECUSensor.h in Headers */,
-				4EF9FA1E1834C7200055DF04 /* FLEAScanTool.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -326,14 +311,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				4EF9FA371834C7200055DF04 /* ELM327ResponseParser.m in Sources */,
-				4EF9FA1F1834C7200055DF04 /* FLEAScanTool.m in Sources */,
 				4EF9FA301834C7200055DF04 /* FLECUSensor.m in Sources */,
-				4EF9FA231834C7200055DF04 /* GoLinkCommand.m in Sources */,
 				4EF9FA2E1834C7200055DF04 /* FLScanToolResponseParser.m in Sources */,
-				4EF9FA251834C7200055DF04 /* GoLinkResponseParser.m in Sources */,
-				4EF9FA1D1834C7200055DF04 /* FLEAController.m in Sources */,
 				4EF9FA271834C7200055DF04 /* FLScanTool.m in Sources */,
-				4EF9FA211834C7200055DF04 /* GoLink.m in Sources */,
 				4EF9FA331834C7200055DF04 /* ELM327.m in Sources */,
 				4EF9FA2A1834C7200055DF04 /* FLScanToolCommand.m in Sources */,
 				4EF9FA351834C7200055DF04 /* ELM327Command.m in Sources */,
@@ -359,8 +339,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = OBD2Kit_Prefix.pch;
 				INSTALL_PATH = /usr/local/lib;
-				IPHONEOS_DEPLOYMENT_TARGET = 3.1.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = OBD2Kit;
+				VALID_ARCHS = "arm64 armv7";
 			};
 			name = Debug;
 		};
@@ -373,18 +355,22 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = OBD2Kit_Prefix.pch;
 				INSTALL_PATH = /usr/local/lib;
-				IPHONEOS_DEPLOYMENT_TARGET = 3.1.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = OBD2Kit;
+				VALID_ARCHS = "arm64 armv7";
 			};
 			name = Release;
 		};
 		1DEB922308733DC00010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PREBINDING = NO;
@@ -395,9 +381,11 @@
 		1DEB922408733DC00010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PREBINDING = NO;
 				SDKROOT = iphoneos;

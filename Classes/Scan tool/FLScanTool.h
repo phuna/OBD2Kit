@@ -113,7 +113,7 @@ typedef enum {
 	NSUInteger					_currentPIDGroup;
 }
 
-@property(readonly) NSArray* supportedSensors;
+@property(readonly) NSArray* supportedSensorList;
 @property(nonatomic, retain) NSArray* sensorScanTargets;
 @property(assign) id<FLScanToolDelegate> delegate;
 @property(nonatomic, readonly) BOOL scanning;
@@ -143,6 +143,14 @@ typedef enum {
 - (void)open;
 - (void)close;
 - (void)initScanTool;
+
+/**
+ Initializes scanning process.
+ 
+ Sensors should be added in block after retriving supported sensors list.
+ 
+ @param sensors Block executed after initialization.
+ */
 - (void)startScanWithSensors:(NSArray* (^)(void))sensors;
 - (void)pauseScan;
 - (void)resumeScanFromPause;

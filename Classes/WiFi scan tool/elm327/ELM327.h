@@ -92,9 +92,7 @@ const static int elm_protocol_map[] = {
 	kScanToolProtocolNone
 };
 
-
 #define GET_PROTOCOL(elm_proto)			elm_protocol_map[elm_proto]
-
 
 @interface ELM327 : FLWifiScanTool {
 	ELM327InitState					_initState;

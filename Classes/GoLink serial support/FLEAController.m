@@ -74,7 +74,7 @@ static FLEAController* g_sharedController = nil;
     return UINT_MAX;  //denotes an object that cannot be released
 }
 
-- (void)release {
+- (oneway void)release {
 	
 }
 

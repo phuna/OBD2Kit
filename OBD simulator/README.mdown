@@ -1,0 +1,10 @@
+obdsim Diagnostic simulator
+=====================================
+
+Thanks to Gary (chunky@icculus.org).
+
+See http://icculus.org/obdgpslogger/obdsim.html for details.
+
+Usage example:
+
+obdsim -k 35000

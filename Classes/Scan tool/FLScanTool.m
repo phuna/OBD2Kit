@@ -147,7 +147,7 @@
 
 
 - (CLLocation*) currentLocation {
-	if(_locationManager && _locationManager.locationServicesEnabled) {
+	if(_locationManager && [CLLocationManager locationServicesEnabled]) {
 		
 		// Check the timestamp to make sure it's current enough
 		CLLocation* lastKnownLocation = [_locationManager location];
@@ -239,7 +239,7 @@
 			
 			if(supported) {
 				NSNumber* pidNum = [NSNumber numberWithInt:pid];
-				if(NOT_SEARCH_PID(pid) && pid <= 0x4E && ![_supportedSensorList containsObject:pidNum]) {
+				if(NOT_SEARCH_PID(pid) && pid <= OBD2SensorLast && ![_supportedSensorList containsObject:pidNum]) {
 					[_supportedSensorList addObject:pidNum];
 				}			
 			}
@@ -307,7 +307,7 @@
 	
 	unsigned char next = [self nextSensor];
 	
-	if(next <= 0x4E) {
+	if(next <= OBD2SensorLast) {
 		return [self commandForGenericOBD:kScanToolModeRequestCurrentPowertrainDiagnosticData 
 									  pid:next 
 									 data:nil];
@@ -374,7 +374,7 @@
 	}
 	
 	
-	if(_locationManager.locationServicesEnabled) {
+	if([CLLocationManager locationServicesEnabled]) {
 		_locationManager.desiredAccuracy	= kCLLocationAccuracyBest;
 		_locationManager.delegate			= self;
 		[_locationManager startUpdatingLocation];
@@ -409,7 +409,7 @@
 	FLINFO("ATTEMPTING SCAN CANCELLATION")
 	[_scanOperationQueue cancelAllOperations];	
 	[_streamOperation cancel];
-	if(_locationManager && _locationManager.locationServicesEnabled) {
+	if(_locationManager && [CLLocationManager locationServicesEnabled]) {
 		[_locationManager stopUpdatingLocation];
 		_locationManager.delegate	= nil;
 	}
