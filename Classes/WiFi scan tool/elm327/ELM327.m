@@ -288,9 +288,8 @@
 		FLDEBUG(@"Read %d bytes", readLength)
 		FLDEBUG(@"_readBufLength = %d", _readBufLength)
 		
-		if (readLength != -1) {
+		if (readLength != -1)
 			_readBufLength += readLength;
-		}
 		
 		if(ELM_READ_COMPLETE(_readBuf, (_readBufLength-1))) {
 			
@@ -317,17 +316,11 @@
 				}
 				
 				NSArray* responses	= [_parser parseResponse:_protocol];
-				if(responses) {
-					if(self.useLocation) {
-						[responses makeObjectsPerformSelector:@selector(setLocation:) withObject:self.currentLocation];
-					}					
-//					[self dispatchDelegate:@selector(scanTool:didReceiveResponse:) withObject:responses];
-                    [self didReceiveResponses:responses];
-				}
-				else {
-					[self dispatchDelegate:@selector(scanTool:didReceiveResponse:) withObject:nil];
-				}
 
+                if(self.useLocation)
+                    [responses makeObjectsPerformSelector:@selector(setLocation:) withObject:self.currentLocation];
+                
+                [self didReceiveResponses:responses];
 				
 				_state = STATE_IDLE;
 				[self sendCommand:[self dequeueCommand] initCommand:YES];

@@ -22,6 +22,7 @@
 		29AB091112F8A8660073262E /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29AB091012F8A8660073262E /* CoreLocation.framework */; };
 		4E0352CE1834CB630075B9BA /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4E0352CD1834CB630075B9BA /* Default-568h@2x.png */; };
 		4E0352D01834CB690075B9BA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4E0352CF1834CB690075B9BA /* Images.xcassets */; };
+		4E2D220618432B5E0000A1EA /* BasicScanViewController+ScanToolDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4E2D220518432B5E0000A1EA /* BasicScanViewController+ScanToolDelegate.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,7 @@
 		32CA4F630368D1EE00C91783 /* BasicScan_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicScan_Prefix.pch; sourceTree = "<group>"; };
 		4E0352CD1834CB630075B9BA /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		4E0352CF1834CB690075B9BA /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = BasicScan/Images.xcassets; sourceTree = "<group>"; };
+		4E2D220518432B5E0000A1EA /* BasicScanViewController+ScanToolDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "BasicScanViewController+ScanToolDelegate.m"; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* BasicScan-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "BasicScan-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -90,6 +92,7 @@
 				1D3623250D0F684500981E51 /* BasicScanAppDelegate.m */,
 				28D7ACF60DDB3853001CB0EB /* BasicScanViewController.h */,
 				28D7ACF70DDB3853001CB0EB /* BasicScanViewController.m */,
+				4E2D220518432B5E0000A1EA /* BasicScanViewController+ScanToolDelegate.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -251,6 +254,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4E2D220618432B5E0000A1EA /* BasicScanViewController+ScanToolDelegate.m in Sources */,
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* BasicScanAppDelegate.m in Sources */,
 				28D7ACF80DDB3853001CB0EB /* BasicScanViewController.m in Sources */,
@@ -272,6 +276,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -282,7 +287,7 @@
 				GCC_PREFIX_HEADER = BasicScan_Prefix.pch;
 				HEADER_SEARCH_PATHS = "../../Classes/**";
 				INFOPLIST_FILE = "BasicScan-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_LDFLAGS = (
 					"-all_load",
 					"-ObjC",
@@ -295,6 +300,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -303,7 +309,7 @@
 				GCC_PREFIX_HEADER = BasicScan_Prefix.pch;
 				HEADER_SEARCH_PATHS = "../../Classes/**";
 				INFOPLIST_FILE = "BasicScan-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_LDFLAGS = (
 					"-all_load",
 					"-ObjC",
@@ -316,11 +322,14 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				SDKROOT = iphoneos;
 			};
@@ -329,11 +338,14 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PREBINDING = NO;
 				SDKROOT = iphoneos;

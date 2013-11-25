@@ -20,8 +20,6 @@
 
 #import "BasicScanViewController.h"
 
-#import "FLLogging.h"
-#import "FLECUSensor.h"
 #import "ELM327.h"
 
 @interface BasicScanViewController ()
@@ -35,7 +33,7 @@
 - (void)viewDidAppear:(BOOL)animated
 {
 	[super viewDidAppear:animated];
-	[self scan];
+	[self startScan];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -44,7 +42,7 @@
 	[self stopScan];
 }
 
-- (void)scan
+- (void)startScan
 {
 	[self.statusLabel setText:@"Initializing..."];
 	
@@ -57,6 +55,7 @@
         
         NSArray *sensors = @[@(OBD2SensorEngineRPM),
                              @(OBD2SensorVehicleSpeed),
+                             @(OBD2SensorEngineOilTemperature),
                              ];
         
         return sensors;
@@ -71,83 +70,6 @@
     [scanTool cancelScan];
 	[scanTool setSensorScanTargets:nil];
 	[scanTool setDelegate:nil];
-}
-
-#pragma mark -
-#pragma mark ScanToolDelegate Methods
-
-- (void)scanDidStart:(FLScanTool*)scanTool {
-	FLINFO(@"STARTED SCAN")
-}
-
-- (void)scanDidPause:(FLScanTool*)scanTool {
-	FLINFO(@"PAUSED SCAN")
-}
-
-- (void)scanDidCancel:(FLScanTool*)scanTool {
-	FLINFO(@"CANCELLED SCAN")
-}
-
-- (void)scanToolDidConnect:(FLScanTool*)scanTool {
-	FLINFO(@"SCANTOOL CONNECTED")
-}
-
-- (void)scanToolDidDisconnect:(FLScanTool*)scanTool {
-	FLINFO(@"SCANTOOL DISCONNECTED")
-}
-
-- (void)scanToolWillSleep:(FLScanTool*)scanTool {
-	FLINFO(@"SCANTOOL SLEEP")
-}
-
-- (void)scanToolDidFailToInitialize:(FLScanTool*)scanTool {
-	FLINFO(@"SCANTOOL INITIALIZATION FAILURE")
-	FLDEBUG(@"scanTool.scanToolState: %u", scanTool.scanToolState)
-	FLDEBUG(@"scanTool.supportedSensors count: %d", [scanTool.supportedSensors count])
-}
-
-- (void)scanTool:(FLScanTool*)scanTool didSendCommand:(FLScanToolCommand*)command {
-	FLINFO(@"DID SEND COMMAND")
-}
-
-- (void)scanTool:(FLScanTool*)scanTool didUpdateSensor:(FLECUSensor*)sensor
-{
-    UILabel *sensorLabel = nil;
-    
-    switch (sensor.pid) {
-        case OBD2SensorEngineRPM:
-            sensorLabel = self.rpmLabel;
-            break;
-        case OBD2SensorVehicleSpeed:
-            sensorLabel = self.speedLabel;
-            break;
-            
-        default:
-            break;
-    }
-    
-    NSString *sensorValue = [NSString stringWithFormat:@"%@ %@",
-                             [sensor valueStringForMeasurement1:NO],
-                             [sensor imperialUnitString]];
-    
-    [sensorLabel setText:sensorValue];
-    [sensorLabel setNeedsDisplay];
-}
-
-
-- (void)scanTool:(FLScanTool*)scanTool didReceiveVoltage:(NSString*)voltage {
-	FLTRACE_ENTRY
-}
-
-
-- (void)scanTool:(FLScanTool*)scanTool didTimeoutOnCommand:(FLScanToolCommand*)command {
-	FLINFO(@"DID TIMEOUT")
-}
-
-
-- (void)scanTool:(FLScanTool*)scanTool didReceiveError:(NSError*)error {
-	FLINFO(@"DID RECEIVE ERROR")
-	FLNSERROR(error)
 }
 
 @end

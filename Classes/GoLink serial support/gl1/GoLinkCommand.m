@@ -71,7 +71,7 @@ const GoLinkRequestFrame g_VehicleBusTypeRequestFrame = {
 	
 	GoLinkCommand* cmd	= [[GoLinkCommand alloc] init];
 	cmd.mode			= (mode >= 0x01 && mode <= 0x0B) ? mode : 0x01;
-	cmd.pid				= (pid >= 0x00 && pid <= 0x4E) ? pid : 0x01;
+	cmd.pid				= (pid >= 0x00 && pid <= OBD2SensorLast) ? pid : 0x01;
 	cmd.data			= data;
 	
 	GoLinkRequestFrame frame	= {
@@ -89,7 +89,7 @@ const GoLinkRequestFrame g_VehicleBusTypeRequestFrame = {
 	
 	frame.data[0]		= mode;
 	
-	if (pid >= 0x00 && pid <= 0x4E) {
+	if (pid <= OBD2SensorLast) {
 		frame.data[1]		= pid;
 		frame.header.length	= 2;
 		

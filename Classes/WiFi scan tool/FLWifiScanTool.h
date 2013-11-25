@@ -35,6 +35,14 @@
 @property (nonatomic, readonly) NSString* host;
 @property (nonatomic, readonly) uint port;
 
+/**
+ Returns scan tool instance
+ 
+ @param host Ip address for connecting to a diagnostic device
+ @param port Port for connecting to a diagnostic device
+ 
+ @return WiFi scan tool instance
+ */
 + (instancetype)scanToolWithHost:(NSString*)host andPort:(uint)port;
 
 @end

@@ -433,7 +433,77 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 		0x4E,
 		{ "Time Since Trouble Codes Cleared", "DTC Cleared Time", "min", 0, 65535, NULL, INT_MAX, INT_MAX, &calcTime, NULL },
 		{ NULL, NULL, NULL, INT_MAX, INT_MAX, NULL, INT_MAX, INT_MAX, NULL, NULL }
-	}	
+	},
+	{
+		OBD2SensorMaxValueForER_OSV_OSC_IMAP,
+		{ "Maximum value for equivalence ratio, oxygen sensor voltage, oxygen sensor current, and intake manifold absolute pressure", "Maximum values", "min", 0, 255, NULL, INT_MAX, INT_MAX, &calcTime, NULL },
+		{ NULL, NULL, NULL, INT_MAX, INT_MAX, NULL, INT_MAX, INT_MAX, NULL, NULL }
+	},
+    // From this point sensors don't have full support yet
+	{
+		OBD2SensorMaxValueForAirFlowRateFromMAFSensor,
+		{ "", "", "min", 0, 255, NULL, INT_MAX, INT_MAX, &calcTime, NULL },
+		{ NULL, NULL, NULL, INT_MAX, INT_MAX, NULL, INT_MAX, INT_MAX, NULL, NULL }
+	},
+	{
+		OBD2SensorFuelType,
+		{ "", "", "min", 0, 255, NULL, INT_MAX, INT_MAX, &calcTime, NULL },
+		{ NULL, NULL, NULL, INT_MAX, INT_MAX, NULL, INT_MAX, INT_MAX, NULL, NULL }
+	},
+	{
+		OBD2SensorEthanolFuelRatio,
+		{ "", "", "min", 0, 255, NULL, INT_MAX, INT_MAX, &calcTime, NULL },
+		{ NULL, NULL, NULL, INT_MAX, INT_MAX, NULL, INT_MAX, INT_MAX, NULL, NULL }
+	},
+	{
+        OBD2SensorAbsoluteEvapSystemVaporPressure,
+		{ "", "", "min", 0, 255, NULL, INT_MAX, INT_MAX, &calcTime, NULL },
+		{ NULL, NULL, NULL, INT_MAX, INT_MAX, NULL, INT_MAX, INT_MAX, NULL, NULL }
+	},
+	{
+		OBD2SensorEvapSystemVaporPressure,
+		{ "", "", "min", 0, 255, NULL, INT_MAX, INT_MAX, &calcTime, NULL },
+		{ NULL, NULL, NULL, INT_MAX, INT_MAX, NULL, INT_MAX, INT_MAX, NULL, NULL }
+	},
+	{
+		OBD2SensorShortTermSecondaryOxygenSensorTrimBank_1_3,
+		{ "", "", "min", 0, 255, NULL, INT_MAX, INT_MAX, &calcTime, NULL },
+		{ NULL, NULL, NULL, INT_MAX, INT_MAX, NULL, INT_MAX, INT_MAX, NULL, NULL }
+	},
+	{
+		OBD2SensorLongTermSecondaryOxygenSensorTrimBank_1_3,
+		{ "", "", "min", 0, 255, NULL, INT_MAX, INT_MAX, &calcTime, NULL },
+		{ NULL, NULL, NULL, INT_MAX, INT_MAX, NULL, INT_MAX, INT_MAX, NULL, NULL }
+	},
+	{
+		OBD2SensorrShortTermSecondaryOxygenSensorTrimBank_2_4,
+		{ "", "", "min", 0, 255, NULL, INT_MAX, INT_MAX, &calcTime, NULL },
+		{ NULL, NULL, NULL, INT_MAX, INT_MAX, NULL, INT_MAX, INT_MAX, NULL, NULL }
+	},
+	{
+		OBD2SensorLongTermSecondaryOxygenSensorTrimBank_2_4,
+		{ "", "", "min", 0, 255, NULL, INT_MAX, INT_MAX, &calcTime, NULL },
+		{ NULL, NULL, NULL, INT_MAX, INT_MAX, NULL, INT_MAX, INT_MAX, NULL, NULL }
+	},
+	{
+		OBD2SensorFuelRailPressure_Absolute,
+		{ "", "", "min", 0, 255, NULL, INT_MAX, INT_MAX, &calcTime, NULL },
+		{ NULL, NULL, NULL, INT_MAX, INT_MAX, NULL, INT_MAX, INT_MAX, NULL, NULL }
+	},
+	{
+		OBD2SensorRelativeAcceleratorPedalPosition,
+		{ "", "", "min", 0, 255, NULL, INT_MAX, INT_MAX, &calcTime, NULL },
+		{ NULL, NULL, NULL, INT_MAX, INT_MAX, NULL, INT_MAX, INT_MAX, NULL, NULL }
+	},
+	{
+		OBD2SensorHybridBatteryPackRemainingLife,
+		{ "", "", "min", 0, 255, NULL, INT_MAX, INT_MAX, &calcTime, NULL },
+		{ NULL, NULL, NULL, INT_MAX, INT_MAX, NULL, INT_MAX, INT_MAX, NULL, NULL }
+	},
+	{
+		OBD2SensorEngineOilTemperature,
+		{ "Engine Oil Temperature", "Oil Temperature", "˚C", -40, 210, "˚F", -40, 419, &calcTemp, &convertTemp },
+	}
 };
 
 #pragma mark -
@@ -454,10 +524,10 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 #pragma mark -
 @implementation FLECUSensor
 
-+ (FLECUSensor*) sensorForPID:(NSUInteger)pid {
++ (FLECUSensor*) sensorForPID:(OBD2Sensor)pid {
 	FLECUSensor* sensor		= nil;
 	
-	if(pid <= 0x4E) {
+	if(pid <= OBD2SensorLast) {
 		sensor			= [[FLECUSensor alloc] initWithDescriptor:&g_sensorDescriptorTable[pid]];
 	}
 	
@@ -482,7 +552,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 			// appears to be more common than previously anticipated.
 			// - mgile 08-Feb-2010
 			
-			FLERROR(@"data (0x%08X) is NULL or dataLength is not a multiple of 2 (%d)", data, dataLength)
+			FLERROR(@"data (0x%8s) is NULL or dataLength is not a multiple of 2 (%d)", data, dataLength)
 			// data length must be a multiple of 2
 			// each DTC is encoded in 2 bytes of data
 			return nil;
@@ -490,8 +560,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 		else {
 			codes				= [[NSMutableArray alloc] initWithCapacity:(dataLength / 2)];
 		}
-
-		
+        
 		for(int i=0; i < dataLength; i+=2) {
 			[codes addObject:[NSString stringWithFormat:@"%c%02X%02X",
 														systemCode[(data[i] & DTC_SYSTEM_MASK)], 
@@ -581,7 +650,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (NSUInteger)pid {
+- (OBD2Sensor)pid {
 	return _sensorDescriptor->pid;
 }
 
@@ -602,6 +671,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 		}
 		
 		if([_sensorValueHistory count] >= 64) {
+            //TODO: Remove this magic.
 			const NSUInteger removalList[] = {
 				0, 1, 2, 3, 4, 5, 6, 7, 8,
 				9, 10, 11, 12, 13, 14, 15,
@@ -614,6 +684,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 			//[_sensorValueHistory removeObjectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 32)]];
 			_valueHistoryHead = 0;
 			_valueHistoryTail = 32;
+            //
 		}
 
 
@@ -711,6 +782,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 		return (NSString*)value;
 	}
 	else {
+        // TODO: simplify to floatValue and checking
 		NSNumber* numVal = (NSNumber*)value;
 		if(IS_INT_VALUE(self.pid, 1)) {
 			return [NSString stringWithFormat:@"%d", [numVal intValue]];
@@ -732,7 +804,8 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	if([value isKindOfClass:[NSString class]]) {
 		return (NSString*)value;
 	}
-	else {		
+	else {
+        // TODO: simplify to floatValue and checking
 		NSNumber* numVal = (NSNumber*)value;		
 		if(IS_INT_VALUE(self.pid, 2)) {
 			return [NSString stringWithFormat:@"%d", [numVal intValue]];
@@ -1086,10 +1159,11 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	
 	dataA = dataA & ~0x7F; // only bit 0 is valid
 	
-	if(dataA & 0x01 != 0) {
+    //TODO: Test the correctness of expressions with parentheses
+	if((dataA & 0x01) != 0) {
 		return @"PTO_STATE: ON";
 	}
-	else if(dataA & 0x02 != 0) {
+	else if((dataA & 0x02) != 0) {
 		return @"PTO_STATE: OFF";
 	}
 	else {
@@ -1162,28 +1236,29 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	unsigned char dataA		= 0;
 	[data getBytes:&dataA length:1];
 	
-	if(dataA & 0x01 != 0)
-		returnString		= [NSString stringWithFormat:@"O2S11", returnString];
+    //TODO: Test the correctness of expressions with parentheses. Old version: (dataA & 0x01 != 0)
+	if((dataA & 0x01) != 0)
+		returnString		= [NSString stringWithFormat:@"O2S11"/*, returnString*/];
 	
-	if(dataA & 0x02 != 0)
+	if((dataA & 0x02) != 0)
 		returnString		= [NSString stringWithFormat:@"%@, O2S12", returnString];
 	
-	if(dataA & 0x04 != 0)
+	if((dataA & 0x04) != 0)
 		returnString		= [NSString stringWithFormat:@"%@, O2S13", returnString];
 	
-	if(dataA & 0x08 != 0)
+	if((dataA & 0x08)  != 0)
 		returnString		= [NSString stringWithFormat:@"%@, O2S14", returnString];
 	
-	if(dataA & 0x10 != 0)
+	if((dataA & 0x10)  != 0)
 		returnString		= [NSString stringWithFormat:@"%@, O2S21", returnString];
 	
-	if(dataA & 0x20 != 0)
+	if((dataA & 0x20)  != 0)
 		returnString		= [NSString stringWithFormat:@"%@, O2S22", returnString];
 	
-	if(dataA & 0x40 != 0)
+	if((dataA & 0x40)  != 0)
 		returnString		= [NSString stringWithFormat:@"%@, O2S23", returnString];
 	
-	if(dataA & 0x80 != 0)
+	if((dataA & 0x80)  != 0)
 		returnString		= [NSString stringWithFormat:@"%@, O2S24", returnString];
 	
 	
@@ -1197,29 +1272,29 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	unsigned char dataA		= 0;
 	[data getBytes:&dataA length:1];
 	
+    //TODO: Test the correctness of expressions with parentheses. Old version: (dataA & 0x01 != 0)
+	if((dataA & 0x01)  != 0)
+		returnString		= [NSString stringWithFormat:@"O2S11"/*, returnString*/];
 	
-	if(dataA & 0x01 != 0)
-		returnString		= [NSString stringWithFormat:@"O2S11", returnString];
-	
-	if(dataA & 0x02 != 0)
+	if((dataA & 0x02)  != 0)
 		returnString		= [NSString stringWithFormat:@"%@, O2S12", returnString];
 	
-	if(dataA & 0x04 != 0)
+	if((dataA & 0x04)  != 0)
 		returnString		= [NSString stringWithFormat:@"%@, O2S21", returnString];
 	
-	if(dataA & 0x08 != 0)
+	if((dataA & 0x08)  != 0)
 		returnString		= [NSString stringWithFormat:@"%@, O2S22", returnString];
 	
-	if(dataA & 0x10 != 0)
+	if((dataA & 0x10)  != 0)
 		returnString		= [NSString stringWithFormat:@"%@, O2S31", returnString];
 	
-	if(dataA & 0x20 != 0)
+	if((dataA & 0x20)  != 0)
 		returnString		= [NSString stringWithFormat:@"%@, O2S32", returnString];
 	
-	if(dataA & 0x40 != 0)
+	if((dataA & 0x40)  != 0)
 		returnString		= [NSString stringWithFormat:@"%@, O2S41", returnString];
 	
-	if(dataA & 0x80 != 0)
+	if((dataA & 0x80)  != 0)
 		returnString		= [NSString stringWithFormat:@"%@, O2S42", returnString];
 
 

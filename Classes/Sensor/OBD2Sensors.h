@@ -91,4 +91,29 @@ typedef NS_ENUM(NSUInteger, OBD2Sensor) {
     OBD2SensorCommandedThrottleActuator = 0x4C,
     OBD2SensorTimeRunWithMILOn = 0x4D,
     OBD2SensorTimeSinceTroubleCodesCleared = 0x4E,
+    
+    // From this point sensors don't have full support yet
+    OBD2SensorMaxValueForER_OSV_OSC_IMAP = 0x4F,    /* Maximum value for equivalence ratio, oxygen sensor voltage,
+                                                     oxygen sensor current and intake manifold absolute pressure
+                                                     */
+    OBD2SensorMaxValueForAirFlowRateFromMAFSensor = 0x50,
+    OBD2SensorFuelType = 0x51,
+    OBD2SensorEthanolFuelRatio = 0x52,
+    OBD2SensorAbsoluteEvapSystemVaporPressure = 0x53,
+    OBD2SensorEvapSystemVaporPressure = 0x54,
+    OBD2SensorShortTermSecondaryOxygenSensorTrimBank_1_3 = 0x55,
+    OBD2SensorLongTermSecondaryOxygenSensorTrimBank_1_3 = 0x56,
+    OBD2SensorrShortTermSecondaryOxygenSensorTrimBank_2_4 = 0x57,
+    OBD2SensorLongTermSecondaryOxygenSensorTrimBank_2_4 = 0x58,
+    OBD2SensorFuelRailPressure_Absolute = 0x59,
+    OBD2SensorRelativeAcceleratorPedalPosition = 0x5A,
+    OBD2SensorHybridBatteryPackRemainingLife = 0x5B,
+    OBD2SensorEngineOilTemperature = 0x5C,
+    
+//    OBD2Sensor = 0x,
+// Sensors should be added at this point for supporting count and last.
+    
+    OBD2SensorsSupportedCount,
     };
+
+#define OBD2SensorLast OBD2SensorsSupportedCount - 1
