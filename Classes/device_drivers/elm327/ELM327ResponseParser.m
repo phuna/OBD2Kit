@@ -127,7 +127,7 @@ NSString *const kNoData							= @"NO DATA";
 			// easier processing
 			while(*respCString != '\0' && _decodeBufLength < sizeof(_decodeBuf)) {				
 				_decodeBuf[_decodeBufLength++] = (uint8_t)strtoul(respCString, (char**)&respCString, 16);				
-				FLDEBUG(@"_decodeBuf[%d]: %02x", _decodeBufLength, _decodeBuf[_decodeBufLength-1])
+				FLDEBUG(@"_decodeBuf[%ld]: %02hhx", (long)_decodeBufLength, _decodeBuf[_decodeBufLength-1])
 			}
 			
 			if(!responseArray) {

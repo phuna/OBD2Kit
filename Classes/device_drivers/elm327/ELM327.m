@@ -105,8 +105,8 @@
 		_initState			= ELM327_INIT_STATE_RESET;
 		_currentPIDGroup	= 0x00;
 		
-		FLDEBUG(@"_inputStream status = %08X", [_inputStream streamStatus])
-		FLDEBUG(@"_outputStream status = %08X", [_outputStream streamStatus])
+		FLDEBUG(@"_inputStream status = %08lX", (unsigned long)[_inputStream streamStatus])
+		FLDEBUG(@"_outputStream status = %08lX", (unsigned long)[_outputStream streamStatus])
 		
 		while ([_inputStream streamStatus] != NSStreamStatusOpen &&
 			   [_outputStream streamStatus] != NSStreamStatusOpen) {
@@ -130,8 +130,8 @@
 	
 	@try {
 		NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - (_readBufLength-1))];
-		FLDEBUG(@"Read %d bytes", readLength)
-		FLDEBUG(@"_readBufLength = %d", _readBufLength)
+		FLDEBUG(@"Read %ld bytes", (long)readLength)
+		FLDEBUG(@"_readBufLength = %ld", (long)_readBufLength)
 		
 		if(readLength > 0) {
 			
@@ -148,7 +148,7 @@
 				NSString* respString	= [NSString stringWithCString:(const char*)_readBuf encoding:NSASCIIStringEncoding];
 				
 				if(ELM_ERROR(asciistr)) {
-					FLERROR(@"Error response from ELM327 (state=%d): %@", _initState, respString)
+					FLERROR(@"Error response from ELM327 (state=%u): %@", _initState, respString)
 					_initState	= ELM327_INIT_STATE_RESET;
 					_state		= STATE_INIT;
 				}
@@ -196,7 +196,7 @@
 						case ELM327_INIT_STATE_PID_SEARCH:	{							
 						
 							if(ELM_ERROR(asciistr)) {
-								FLERROR(@"Error response from ELM327 during PID search (state=%d): %@", _initState, respString)
+								FLERROR(@"Error response from ELM327 during PID search (state=%u): %@", _initState, respString)
 								_initState = ELM327_INIT_STATE_RESET;
 							}
 							else {							
@@ -270,8 +270,8 @@
 	FLTRACE_ENTRY
 	@try {
 		NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - _readBufLength)];
-		FLDEBUG(@"Read %d bytes", readLength)
-		FLDEBUG(@"_readBufLength = %d", _readBufLength)
+		FLDEBUG(@"Read %ld bytes", (long)readLength)
+		FLDEBUG(@"_readBufLength = %lu", (unsigned long)_readBufLength)
 		
 		if (readLength != -1) {
 			_readBufLength += readLength;
@@ -338,7 +338,7 @@
 	FLTRACE_ENTRY
 	@try {
 		NSInteger readLength = [_inputStream read:&_readBuf[_readBufLength] maxLength:(sizeof(_readBuf) - _readBufLength)];
-		FLDEBUG(@"Read %d bytes", readLength)
+		FLDEBUG(@"Read %ld bytes", (long)readLength)
 		_readBufLength += readLength;
 		
 		if(ELM_READ_COMPLETE(_readBuf, (_readBufLength-1))) {
@@ -353,7 +353,7 @@
 			FLDEBUG(@"Data Returned: %s", asciistr)
 			
 			if(ELM_ERROR(asciistr)) {
-				FLERROR(@"Error response from ELM327 (state=%d): %s", _initState, asciistr)
+				FLERROR(@"Error response from ELM327 (state=%u): %s", _initState, asciistr)
 				_initState	= ELM327_INIT_STATE_RESET;
 				_state		= STATE_INIT;
 			}

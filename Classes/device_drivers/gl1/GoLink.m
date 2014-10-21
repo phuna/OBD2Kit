@@ -102,7 +102,7 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 	NSMutableArray *rawFrames		= [NSMutableArray array];
 	
 	if (length <= sizeof(GoLinkFrameHeader)) {
-		FLERROR(@"Incomplete frame, size = %d", length)
+		FLERROR(@"Incomplete frame, size = %lu", (unsigned long)length)
 		return rawFrames;
 	}
 	
@@ -110,10 +110,10 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 	GoLinkFrameHeader* frameHeader  = (GoLinkFrameHeader*)data;
 	
 	do {		
-		FLDEBUG(@"bytesRemaining = %d ** dataFrameAddr = %p", bytesRemaining, frameHeader)
+		FLDEBUG(@"bytesRemaining = %ld ** dataFrameAddr = %p", (long)bytesRemaining, frameHeader)
 		
 		if ((sizeof(GoLinkFrameHeader) + frameHeader->length) > bytesRemaining) {
-			FLERROR(@"Dropping incomplete frame. Expecting %d, bytesRemaining %d", (sizeof(GoLinkFrameHeader) + frameHeader->length), bytesRemaining)
+			FLERROR(@"Dropping incomplete frame. Expecting %lu, bytesRemaining %ld", (sizeof(GoLinkFrameHeader) + frameHeader->length), (long)bytesRemaining)
 			break;
 		}
 		
@@ -139,10 +139,10 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 		_readBufLength += [[_session inputStream] read:&_readBuf[_readBufLength] 
 											 maxLength:(GOLINK_READBUF_SIZE - _readBufLength)];
 		
-		FLDEBUG(@"Read %d bytes from EASession inputStream", _readBufLength)		
+		FLDEBUG(@"Read %lu bytes from EASession inputStream", (unsigned long)_readBufLength)
 		
 		if (_readBufLength >= GOLINK_READBUF_SIZE) {
-			FLERROR(@"Error, overflow into _readBuf ** _readBufLength=%d", _readBufLength)
+			FLERROR(@"Error, overflow into _readBuf ** _readBufLength=%ld", (unsigned long)_readBufLength)
 			_readBufLength = 0;
 			break;
 		}
@@ -170,7 +170,7 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 	}
 ***/
 	
-	FLDEBUG(@"_readBufLength = %d  ** _readBuf[] = %@", _readBufLength, [[NSData dataWithBytes:_readBuf length:_readBufLength] description])
+	FLDEBUG(@"_readBufLength = %lu  ** _readBuf[] = %@", (unsigned long)_readBufLength, [[NSData dataWithBytes:_readBuf length:_readBufLength] description])
 	FLDEBUG(@"Frame Type = 0x%04X", GOLINK_FRAME_TYPE(_readBuf))
 	
 	GoLinkFrameHeader* header = (GoLinkFrameHeader*)_readBuf;
@@ -318,7 +318,7 @@ NSString* const kGoLinkScanToolName		= @"GoLink";
 	
 	@try {
 		if(responses && [responses count] > 0) {
-			FLDEBUG(@"Received %d responses", [responses count])
+			FLDEBUG(@"Received %lu responses", (unsigned long)[responses count])
 			
 			
 			if(self.useLocation) {

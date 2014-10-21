@@ -80,10 +80,10 @@
  NSError trace
  */
 #define FLNSERROR(err) if(err) {						\
-	FLTRACE(@"[NSError] %s (%d): (%d:%@) Reason: %@",	\
+	FLTRACE(@"[NSError] %s (%d): (%ld:%@) Reason: %@",	\
 		__PRETTY_FUNCTION__,							\
 		__LINE__,										\
-		err.code,										\
+		(long)err.code,									\
 		err.domain,										\
 		err.localizedDescription)						\
 }

@@ -46,14 +46,14 @@ const GoLinkRequestFrame g_VehicleBusTypeRequestFrame = {
 	
 	if (requestLength > sizeof(GoLinkFrameHeader)) {
 		FLINFO(@"*********** NEW COMMAND CREATED **************")
-		FLDEBUG(@"Flushing length=%d", requestLength)
+		FLDEBUG(@"Flushing length=%ld", (long)requestLength)
 		NSData* requestData		= [[NSData alloc] initWithBytes:&_requestFrame length:requestLength];
 		FLDEBUG(@"Flushing data %@", [requestData description])
 		FLINFO(@"**********************************************")
 		return [requestData autorelease];
 	}
 	else {
-		FLERROR(@"Request frame contains no data (requestLength=%d)", requestLength)
+		FLERROR(@"Request frame contains no data (requestLength=%ld)", (long)requestLength)
 		return nil;
 	}	
 }
@@ -67,11 +67,11 @@ const GoLinkRequestFrame g_VehicleBusTypeRequestFrame = {
 
 + (FLScanToolCommand*) commandForMode:(int)mode pid:(NSUInteger)pid data:(NSData *)data {
 	
-	FLDEBUG(@"Mode=%02X **PID=%02X", mode, pid)
+	FLDEBUG(@"Mode=%02X **PID=%02lX", mode, (unsigned long)pid)
 	
 	GoLinkCommand* cmd	= [[GoLinkCommand alloc] init];
 	cmd.mode			= (mode >= 0x01 && mode <= 0x0B) ? mode : 0x01;
-	cmd.pid				= (pid >= 0x00 && pid <= 0x4E) ? pid : 0x01;
+	cmd.pid				= (pid <= 0x4E) ? pid : 0x01;
 	cmd.data			= data;
 	
 	GoLinkRequestFrame frame	= {
@@ -89,7 +89,7 @@ const GoLinkRequestFrame g_VehicleBusTypeRequestFrame = {
 	
 	frame.data[0]		= mode;
 	
-	if (pid >= 0x00 && pid <= 0x4E) {
+	if (pid <= 0x4E) {
 		frame.data[1]		= pid;
 		frame.header.length	= 2;
 		

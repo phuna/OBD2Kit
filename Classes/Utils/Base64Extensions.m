@@ -49,7 +49,7 @@ static char base64EncodingTable [64] = {
 + (NSData *)base64DataFromString: (NSString *)string
 {
 	unsigned long ixtext, lentext;
-	unsigned char ch, inbuf[3], outbuf[4];
+	unsigned char ch, inbuf[4], outbuf[4];
 	short i, ixinbuf;
 	Boolean flignore, flendtext = false;
 	const unsigned char *tempcstring;

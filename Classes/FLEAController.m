@@ -70,11 +70,11 @@ static FLEAController* g_sharedController = nil;
     return self;
 }
 
-- (unsigned)retainCount {
+- (NSUInteger)retainCount {
     return UINT_MAX;  //denotes an object that cannot be released
 }
 
-- (void)release {
+- (oneway void)release {
 	
 }
 
@@ -130,7 +130,7 @@ static FLEAController* g_sharedController = nil;
 - (void) loadConnectedAccessories {
 	_connectedAccessoryList = [[NSMutableArray alloc] initWithArray:[[EAAccessoryManager sharedAccessoryManager] connectedAccessories]];
 	
-	FLDEBUG(@"Found %d connected accessories", (_connectedAccessoryList) ? [_connectedAccessoryList count] : 0)
+    FLDEBUG(@"Found %lu connected accessories", (unsigned long)((_connectedAccessoryList) ? [_connectedAccessoryList count] : 0));
 }
 
 #pragma mark -

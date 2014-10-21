@@ -47,11 +47,11 @@ NSString *const kELM327SetDeviceIdentifier			= @"AT @3";
 	
 	ELM327Command* cmd = nil;
 	
-	if (pid >= 0x00 && pid <= 0x4E) {
-		cmd = [[ELM327Command alloc] initWithCommandString:[NSString stringWithFormat:@"%02x %02x", (NSUInteger)mode, pid]];	
+	if (pid <= 0x4E) {
+		cmd = [[ELM327Command alloc] initWithCommandString:[NSString stringWithFormat:@"%02lx %02lx", (unsigned long)mode, (unsigned long)pid]];
 	}
 	else {
-		cmd = [[ELM327Command alloc] initWithCommandString:[NSString stringWithFormat:@"%02x", (NSUInteger)mode]];	
+		cmd = [[ELM327Command alloc] initWithCommandString:[NSString stringWithFormat:@"%02lx", (unsigned long)mode]];
 	}
 
 	if(data) {

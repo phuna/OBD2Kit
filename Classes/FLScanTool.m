@@ -251,7 +251,7 @@
 - (BOOL) buildSupportedSensorList:(NSData*)data forPidGroup:(NSUInteger)pidGroup {
 	
 	uint8_t* bytes		= (uint8_t*)[data bytes];
-	uint32_t bytesLen	= [data length];
+	NSUInteger bytesLen	= [data length];
 	
 	if(bytesLen != 4) {
 		return NO;
@@ -271,7 +271,7 @@
 	}
 */	
 	
-	int pid				= pidGroup + 1;
+	NSUInteger pid		= pidGroup + 1;
 	BOOL supported		= NO;
 	
 	for (int i=0; i < 4; i++)
@@ -281,7 +281,7 @@
 			supported   = (((1 << leftShift) & bytes[i]) != 0);
 			
 			if(supported) {
-				NSNumber* pidNum = [NSNumber numberWithInt:pid];
+				NSNumber* pidNum = [NSNumber numberWithLong:pid];
 				if(NOT_SEARCH_PID(pid) && pid <= 0x4E && ![_supportedSensorList containsObject:pidNum]) {
 					[_supportedSensorList addObject:pidNum];
 				}			

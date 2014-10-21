@@ -27,7 +27,7 @@
 - (GoLinkSystemFrame*) parseSystemResponse {
 	
 	if (_length <= sizeof(GoLinkFrameHeader)) {
-		FLERROR(@"Incomplete frame, size = %d", _length)
+		FLERROR(@"Incomplete frame, size = %ld", (long)_length)
 		return nil;
 	}
 	
@@ -35,11 +35,11 @@
 	GoLinkSystemFrame* systemFrame	= (GoLinkSystemFrame*)_bytes;	
 	
 	do {		
-		FLDEBUG(@"bytesRemaining = %d ** dataFrameAddr = %p", bytesRemaining, systemFrame)
+		FLDEBUG(@"bytesRemaining = %ld ** dataFrameAddr = %p", (long)bytesRemaining, systemFrame)
 		FLDEBUG(@"Parsing response %@", [[NSData dataWithBytes:(const void*)&(systemFrame->requestType) length:systemFrame->header.length] description])
 		
 		if ((sizeof(GoLinkFrameHeader) + systemFrame->header.length) > bytesRemaining) {
-			FLERROR(@"Dropping incomplete frame. Expecting %d, bytesRemaining %d", (sizeof(GoLinkFrameHeader) + systemFrame->header.length), bytesRemaining)
+			FLERROR(@"Dropping incomplete frame. Expecting %lu, bytesRemaining %ld", (sizeof(GoLinkFrameHeader) + systemFrame->header.length), (long)bytesRemaining)
 			break;
 		}
 
@@ -61,7 +61,7 @@
 - (NSArray*) parseResponse:(FLScanToolProtocol)protocol {
 	
 	if (_length <= sizeof(GoLinkFrameHeader)) {
-		FLERROR(@"Incomplete frame, size = %d", _length)
+		FLERROR(@"Incomplete frame, size = %ld", (long)_length)
 		return nil;
 	}
 	
@@ -70,11 +70,11 @@
 	GoLinkDataFrame* dataFrame		= (GoLinkDataFrame*)_bytes;	
 	
 	do {		
-		FLDEBUG(@"bytesRemaining = %d ** dataFrameAddr = %p", bytesRemaining, dataFrame)
+		FLDEBUG(@"bytesRemaining = %ld ** dataFrameAddr = %p", (long)bytesRemaining, dataFrame)
 		FLDEBUG(@"Parsing response %@", [[NSData dataWithBytes:(const void*)&(dataFrame->mode) length:dataFrame->header.length] description])
 		
 		if ((sizeof(GoLinkFrameHeader) + dataFrame->header.length) > bytesRemaining) {
-			FLERROR(@"Dropping incomplete frame. Expecting %d, bytesRemaining %d", (sizeof(GoLinkFrameHeader) + dataFrame->header.length), bytesRemaining)
+			FLERROR(@"Dropping incomplete frame. Expecting %lu, bytesRemaining %d", (sizeof(GoLinkFrameHeader) + dataFrame->header.length), bytesRemaining)
 			break;
 		}
 		
