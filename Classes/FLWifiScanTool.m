@@ -137,6 +137,13 @@
 		
 		bytesWritten = [oStream write:[_cachedWriteData bytes]
 							maxLength:[_cachedWriteData length]];
+        
+        
+        // Track the number of bytes that have been transferred out
+        if (bytesWritten > 0) {
+            self.xferOutBytes += bytesWritten;
+        }
+        
 		if (bytesWritten == -1) {
 			FLERROR(@"Write Error", nil)
 			break;

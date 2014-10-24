@@ -28,4 +28,7 @@
 	BOOL					_spaceAvailable;
 }
 
+@property (nonatomic) NSUInteger xferInBytes;
+@property (nonatomic) NSUInteger xferOutBytes;
+
 @end

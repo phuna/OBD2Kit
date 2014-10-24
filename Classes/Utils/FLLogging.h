@@ -18,9 +18,9 @@
  *
  */
 
-
-#define VERBOSE_DEBUG			1
-//#undef VERBOSE_DEBUG
+// Let the project build settings determine this with -DOBDKIT_VERBOSE_DEBUG
+// #define OBDKIT_VERBOSE_DEBUG			1
+// #undef OBDKIT_VERBOSE_DEBUG
 
 #define CONCAT(s1, s2) s1 s2
 
@@ -33,7 +33,7 @@
 /*
  Function Entry Macro 
  */
-#ifdef VERBOSE_DEBUG
+#ifdef OBDKIT_VERBOSE_DEBUG
 #	define FLTRACE_ENTRY NSLog(@"[ENTRY] %s (%d)", __PRETTY_FUNCTION__, __LINE__);
 #else
 #	define FLTRACE_ENTRY
@@ -43,7 +43,7 @@
 /*
  Function Exit Macro
  */
-#ifdef VERBOSE_DEBUG
+#ifdef OBDKIT_VERBOSE_DEBUG
 #	define FLTRACE_EXIT NSLog(@"[EXIT] %s (%d)", __PRETTY_FUNCTION__, __LINE__);
 #else
 #	define FLTRACE_EXIT
@@ -53,7 +53,7 @@
 /*
  Informational Message
  */
-#ifdef VERBOSE_DEBUG
+#ifdef OBDKIT_VERBOSE_DEBUG
 #	define FLINFO(msg) FLTRACE(@CONCAT("[INFO] %s (%d): ", msg), __PRETTY_FUNCTION__, __LINE__)
 #else
 #	define FLINFO(msg)
@@ -63,7 +63,7 @@
 /*
  Debug Message
  */
-#ifdef VERBOSE_DEBUG
+#ifdef OBDKIT_VERBOSE_DEBUG
 #	define FLDEBUG(fmt, ...) FLTRACE(@CONCAT("[DEBUG] %s (%d): ", fmt), __PRETTY_FUNCTION__, __LINE__, __VA_ARGS__)
 #else
 #	define FLDEBUG(fmt, ...)
