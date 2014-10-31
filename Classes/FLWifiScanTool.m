@@ -149,7 +149,7 @@
 			break;
 		}
 		else if(bytesWritten > 0 && [_cachedWriteData length] > 0) {
-			FLDEBUG(@"Wrote %d bytes", bytesWritten)
+			FLDEBUG(@"Wrote %ld bytes", (long)bytesWritten)
 			[_cachedWriteData replaceBytesInRange:NSMakeRange(0, bytesWritten) 
 										withBytes:NULL 
 										   length:0];
@@ -157,7 +157,7 @@
 	}
 	
 	oStreamStatus = [oStream streamStatus];
-	FLDEBUG(@"OutputStream status = %X", oStreamStatus)
+	FLDEBUG(@"OutputStream status = %lX", (long)oStreamStatus)
 	FLINFO(@"Starting write wait")
 	do {		
 		oStreamStatus = [oStream streamStatus];

@@ -109,6 +109,11 @@ NSString *const kNoData							= @"NO DATA";
 			char* respCString		= (char*)[resp cStringUsingEncoding:NSASCIIStringEncoding];
 			NSUInteger respLen		= [resp lengthOfBytesUsingEncoding:NSASCIIStringEncoding];
 			
+            if (respLen == 0) {
+                // Avoid crash if empty buffer
+                break;
+            }
+            
 			// You'd be surprised
 			respCString[respLen]	= 0x00;
 			
@@ -120,7 +125,7 @@ NSString *const kNoData							= @"NO DATA";
 			if(ELM_SEARCHING(respCString)) {
 				// A common reply if PID search occuring for the first time
 				// at this drive cycle
-				break;
+				continue;
 			}
 			
 			// For each response data string, decode into an integer array for

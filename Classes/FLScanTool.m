@@ -456,7 +456,7 @@
 	}
 	
 	[_supportedSensorList removeAllObjects];
-	
+    
 	FLDEBUG(@"_streamOperation.isCancelled = %d", _streamOperation.isCancelled)
 }
 
@@ -484,10 +484,9 @@
 		}
 		else if([self isWifiScanTool]) {
 			while (!_streamOperation.isCancelled && [currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:distantFutureDate]) {
-				;;
+				[NSThread sleepForTimeInterval:0.100];
 			}
 		}
-		
 		
 		FLINFO(@"*** STREAMS CANCELLED ***")
 	}
@@ -498,7 +497,7 @@
 		[pool release];
 		[self close];
 		[self dispatchDelegate:@selector(scanDidCancel:) withObject:nil];
-	}	
+	}
 }
 
 

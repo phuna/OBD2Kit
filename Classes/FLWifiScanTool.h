@@ -19,6 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <Foundation/NSStream.h>
 #import "FLScanTool.h"
 
 @interface FLWifiScanTool : FLScanTool <NSStreamDelegate> {

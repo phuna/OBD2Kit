@@ -21,7 +21,6 @@
 #import "NSStreamAdditions.h"
 #import <CFNetwork/CFNetwork.h>
 
-
 @implementation NSStream (NSStreamAdditions)
 
 + (void)getIOStreamsToHostNamed:(NSString *)hostName 
@@ -38,10 +37,13 @@
     
     host = CFHostCreateWithName(NULL, (CFStringRef) hostName);
     if (host != NULL) {
-        (void) CFStreamCreatePairWithSocketToCFHost(NULL, host, port, &readStream, &writeStream);
+        (void) CFStreamCreatePairWithSocketToCFHost(NULL, host, (SInt32)port, &readStream, &writeStream);
         CFRelease(host);
     }
     
+//    CFWriteStreamSetProperty(writeStream, kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanTrue);
+//    CFReadStreamSetProperty(readStream, kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanTrue);
+
     if (inputStream == NULL) {
         if (readStream != NULL) {
             CFRelease(readStream);

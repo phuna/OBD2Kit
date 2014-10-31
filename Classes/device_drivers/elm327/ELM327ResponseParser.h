@@ -33,8 +33,8 @@ extern NSString *const kNoData;
 #define ELM_READ_COMPLETE(buf, end)				(buf[end] == kResponseFinishedCode)
 
 
-#define ELM_OK(str)								strncasecmp(str, "OK", 2)
-#define ELM_ERROR(str)							!strncasecmp(str, "?", 1)
+#define ELM_OK(str)								(strncasecmp(str, "OK", 2) == 0)
+#define ELM_ERROR(str)							(strncasecmp(str, "?", 1) == 0)
 #define ELM_NO_DATA(str)						!strncasecmp(str, "NO DATA", 7)
 #define ELM_SEARCHING(str)						!strncasecmp(str, "SEARCHING...", 12)
 #define ELM_DATA_RESPONSE(str)					isdigit((int)*str) || ELM_SEARCHING(str)
