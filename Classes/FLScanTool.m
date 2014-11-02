@@ -188,9 +188,8 @@
 	}
 }
 
-
 - (CLLocation*) currentLocation {
-	if(_locationManager && _locationManager.locationServicesEnabled) {
+	if(_locationManager && [CLLocationManager locationServicesEnabled]) {
 		
 		// Check the timestamp to make sure it's current enough
 		CLLocation* lastKnownLocation = [_locationManager location];
@@ -410,17 +409,15 @@
 		_sensorScanTargets = nil;
 	}
 	
-	if(!_locationManager) {
+	if(self.useLocation && !_locationManager) {
 		_locationManager	= [[CLLocationManager alloc] init];
 	}
-	
-	
-	if(_locationManager.locationServicesEnabled) {
+    
+	if(_locationManager && [CLLocationManager locationServicesEnabled]) {
 		_locationManager.desiredAccuracy	= kCLLocationAccuracyBest;
 		_locationManager.delegate			= self;
 		[_locationManager startUpdatingLocation];
-	}	
-	
+	}
 	
 	[_scanOperationQueue release];
 	
@@ -450,7 +447,8 @@
 	FLINFO("ATTEMPTING SCAN CANCELLATION")
 	[_scanOperationQueue cancelAllOperations];	
 	[_streamOperation cancel];
-	if(_locationManager && _locationManager.locationServicesEnabled) {
+    
+	if(_locationManager && [CLLocationManager locationServicesEnabled]) {
 		[_locationManager stopUpdatingLocation];
 		_locationManager.delegate	= nil;
 	}
