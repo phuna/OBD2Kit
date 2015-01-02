@@ -24,7 +24,7 @@
 
 - (id)init {
 	if(self = [super init]) {
-		_timestamp					= [[NSDate date] retain];
+		_timestamp					= [NSDate date];
 	}
 	
 	return self;
@@ -33,16 +33,6 @@
 - (void)setMode:(NSUInteger)mode
 {
 	_mode = (mode ^ 0x40);
-}
-
-- (void)dealloc
-{
-	[_data release];
-	[_responseData release];
-	[_timestamp release];
-	[_scanToolName release];
-    
-	[super dealloc];
 }
 
 @end

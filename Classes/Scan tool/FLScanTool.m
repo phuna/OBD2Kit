@@ -86,15 +86,7 @@
 - (void)dealloc {
 	
 	[self close];
-	
-	[_priorityCommandQueue release];
-	[_commandQueue release];
-	[_supportedSensorList release];
-	[_sensorScanTargets release];	
-	[_locationManager release];
-	[_scanOperationQueue release];
-	[_streamOperation release];
-	[super dealloc];
+    
 }
 
 
@@ -125,8 +117,7 @@
 
 - (void)setSensorScanTargets:(NSArray *)targets
 {
-	[_sensorScanTargets release];	
-	_sensorScanTargets	= [[NSArray arrayWithArray:targets] retain];
+	_sensorScanTargets	= [NSArray arrayWithArray:targets];
 	
     // Test if GoLink support will be added
     // The GoLink (GL1) has a heartbeat, so doesn't need an extra push
@@ -190,15 +181,13 @@
 	
 	if([_priorityCommandQueue count] > 0) {
 		cmd = (FLScanToolCommand*)[_priorityCommandQueue objectAtIndex:0];
-		[cmd retain];
 		[_priorityCommandQueue removeObjectAtIndex:0];
 	}
 	else if(_sensorScanTargets && [_sensorScanTargets count] > 0) {
 		cmd = [self commandForNextSensor];
-		[cmd retain];
 	}
 	
-	return [cmd autorelease];
+	return cmd;
 }
 
 
@@ -208,7 +197,7 @@
 - (BOOL)buildSupportedSensorList:(NSData*)data forPidGroup:(NSUInteger)pidGroup {
 	
 	uint8_t* bytes		= (uint8_t*)[data bytes];
-	uint32_t bytesLen	= [data length];
+	uint32_t bytesLen	= (uint32_t)[data length];
 	
 	if(bytesLen != 4) {
 		return NO;
@@ -228,7 +217,7 @@
 	}
 */	
 	
-	int pid				= pidGroup + 1;
+	int pid				= (int)pidGroup + 1;
 	BOOL supported		= NO;
 	
 	for (int i=0; i < 4; i++)
@@ -327,10 +316,12 @@
 		
 		if(signature) {
 			NSInvocation* invocation = [NSInvocation invocationWithMethodSignature:signature];
+            
+            FLScanTool * __weak weakSelf = self;
 			
 			[invocation setTarget:_delegate];
 			[invocation setSelector:selector];
-			[invocation setArgument:&self atIndex:2];
+			[invocation setArgument:&weakSelf atIndex:2];
 			if(obj) {
 				[invocation setArgument:&obj atIndex:3];
 			}
@@ -355,9 +346,6 @@
 - (void)startScanWithSensors:(NSArray* (^)(void))sensors
 {
     [self setSensorsBlock:sensors];
-    
-	[_priorityCommandQueue release];
-	[_commandQueue release];
 	
 	_priorityCommandQueue	= [[NSMutableArray alloc] initWithCapacity:1];
 	_commandQueue			= [[NSMutableArray alloc] initWithCapacity:16];
@@ -365,7 +353,6 @@
 	
 	[_supportedSensorList removeAllObjects];
 	if (_sensorScanTargets) {
-		[_sensorScanTargets release];
 		_sensorScanTargets = nil;
 	}
 	
@@ -378,10 +365,8 @@
 		_locationManager.desiredAccuracy	= kCLLocationAccuracyBest;
 		_locationManager.delegate			= self;
 		[_locationManager startUpdatingLocation];
-	}	
-	
-	
-	[_scanOperationQueue release];
+	}
+    
 	
 	_streamOperation		= [[NSInvocationOperation alloc] initWithTarget:self 
 															 selector:@selector(runStreams) 
@@ -426,38 +411,38 @@
 
 
 - (void)runStreams {
-	NSAutoreleasePool * pool	= [[NSAutoreleasePool alloc] init];
-	NSRunLoop* currentRunLoop	= [NSRunLoop currentRunLoop];
-	NSDate* distantFutureDate	= [NSDate distantFuture];
-	
-	@try {
-		[self open];
-		
-		[self dispatchDelegate:@selector(scanDidStart:) withObject:nil];	
-		[self initScanTool];
-		
-		if ([self isEAScanTool]) {
-			while (!_streamOperation.isCancelled && [currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:distantFutureDate]) {
-				;;
-			}
-		}
-		else if([self isWifiScanTool]) {
-			while (!_streamOperation.isCancelled && [currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:distantFutureDate]) {
-				;;
-			}
-		}
-		
-		
-		FLINFO(@"*** STREAMS CANCELLED ***")
-	}
-	@catch (NSException * e) {
-		FLEXCEPTION(e)
-	}
-	@finally {
-		[pool release];
-		[self close];
-		[self dispatchDelegate:@selector(scanDidCancel:) withObject:nil];
-	}	
+    @autoreleasepool {
+        NSRunLoop* currentRunLoop	= [NSRunLoop currentRunLoop];
+        NSDate* distantFutureDate	= [NSDate distantFuture];
+        
+        @try {
+            [self open];
+            
+            [self dispatchDelegate:@selector(scanDidStart:) withObject:nil];
+            [self initScanTool];
+            
+            if ([self isEAScanTool]) {
+                while (!_streamOperation.isCancelled && [currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:distantFutureDate]) {
+                    ;;
+                }
+            }
+            else if([self isWifiScanTool]) {
+                while (!_streamOperation.isCancelled && [currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:distantFutureDate]) {
+                    ;;
+                }
+            }
+            
+            
+            FLINFO(@"*** STREAMS CANCELLED ***")
+        }
+        @catch (NSException * e) {
+            FLEXCEPTION(e)
+        }
+        @finally {
+            [self close];
+            [self dispatchDelegate:@selector(scanDidCancel:) withObject:nil];
+        }
+    }
 }
 
 
@@ -465,7 +450,6 @@
 
 	if(!_priorityCommandQueue) {
 		_priorityCommandQueue = [NSMutableArray arrayWithCapacity:8];
-		[_priorityCommandQueue retain];
 	}
 	
 	[self enqueueCommand:[self commandForGenericOBD:kScanToolModeRequestEmissionRelatedDiagnosticTroubleCodes 
@@ -477,7 +461,6 @@
 - (void)getPendingTroubleCodes {
 	if(!_priorityCommandQueue) {
 		_priorityCommandQueue = [NSMutableArray arrayWithCapacity:8];
-		[_priorityCommandQueue retain];
 	}
 	
 	[self enqueueCommand:[self commandForGenericOBD:kScanToolModeRequestEmissionRelatedDiagnosticTroubleCodesDetected
@@ -489,7 +472,6 @@
 - (void)clearTroubleCodes {
 	if(!_priorityCommandQueue) {
 		_priorityCommandQueue = [NSMutableArray arrayWithCapacity:8];
-		[_priorityCommandQueue retain];
 	}
 	
 	[self enqueueCommand:[self commandForGenericOBD:kScanToolModeClearResetEmissionRelatedDiagnosticInfo 
@@ -505,7 +487,6 @@
 - (void)getBatteryVoltage {
 	if(!_priorityCommandQueue) {
 		_priorityCommandQueue = [NSMutableArray arrayWithCapacity:8];
-		[_priorityCommandQueue retain];
 	}
 	
 	[self enqueueCommand:[self commandForGetBatteryVoltage]];

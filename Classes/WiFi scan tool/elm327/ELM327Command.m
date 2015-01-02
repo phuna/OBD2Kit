@@ -44,67 +44,67 @@ NSString *const kELM327SetDeviceIdentifier			= @"AT @3";
 	ELM327Command* cmd = nil;
 	
 	if (pid <= OBD2SensorLast)
-		cmd = [[ELM327Command alloc] initWithCommandString:[NSString stringWithFormat:@"%02x %02x", (NSUInteger)mode, pid]];
+		cmd = [[ELM327Command alloc] initWithCommandString:[NSString stringWithFormat:@"%02lx %02lx", (unsigned long)mode, (unsigned long)pid]];
 	else
-		cmd = [[ELM327Command alloc] initWithCommandString:[NSString stringWithFormat:@"%02x", (NSUInteger)mode]];
+		cmd = [[ELM327Command alloc] initWithCommandString:[NSString stringWithFormat:@"%02lx", (unsigned long)mode]];
 
 	if (data)
 		cmd.data = data;
 	
-	return [cmd autorelease];
+	return cmd;
 }
 
 
 + (ELM327Command*) commandForReset {
 	ELM327Command* cmd = [[ELM327Command alloc] initWithCommandString:kELM327Reset];
-	return [cmd autorelease];
+	return cmd;
 }
 
 + (ELM327Command*) commandForHeadersOn {
 	ELM327Command* cmd = [[ELM327Command alloc] initWithCommandString:kELM327HeadersOn];
-	return [cmd autorelease];
+	return cmd;
 }
 
 
 + (ELM327Command*) commandForEchoOff {
 	ELM327Command* cmd = [[ELM327Command alloc] initWithCommandString:kELM327EchoOff];
-	return [cmd autorelease];	
+	return cmd;
 }
 
 
 + (ELM327Command*) commandForReadVoltage {
 	ELM327Command* cmd = [[ELM327Command alloc] initWithCommandString:kELM327ReadVoltage];
-	return [cmd autorelease];	
+	return cmd;
 }
 
 
 + (ELM327Command*) commandForReadProtocol {
 	ELM327Command* cmd = [[ELM327Command alloc] initWithCommandString:kELM327ReadProtocolNumber];
-	return [cmd autorelease];
+	return cmd;
 }
 
 
 + (ELM327Command*) commandForReadVersionID {
 	ELM327Command* cmd = [[ELM327Command alloc] initWithCommandString:kELM327ReadVersionID];
-	return [cmd autorelease];
+	return cmd;
 }
 
 
 + (ELM327Command*) commandForReadDeviceDescription {
 	ELM327Command* cmd = [[ELM327Command alloc] initWithCommandString:kELM327ReadDeviceDescription];
-	return [cmd autorelease];
+	return cmd;
 }
 
 
 + (ELM327Command*) commandForReadDeviceIdentifier {
 	ELM327Command* cmd = [[ELM327Command alloc] initWithCommandString:kELM327ReadDeviceIdentifier];
-	return [cmd autorelease];
+	return cmd;
 }
 
 
 + (ELM327Command*) commandForSetDeviceIdentifier:(NSString*)identifier {
 	ELM327Command* cmd = [[ELM327Command alloc] initWithCommandString:[NSString stringWithFormat:@"%@ %@", kELM327SetDeviceIdentifier, identifier]];
-	return [cmd autorelease];
+	return cmd;
 }
 
 
@@ -115,12 +115,6 @@ NSString *const kELM327SetDeviceIdentifier			= @"AT @3";
 	}
 	
 	return self;
-}
-
-
-- (void)dealloc {
-	[_command release];
-	[super dealloc];
 }
 
 

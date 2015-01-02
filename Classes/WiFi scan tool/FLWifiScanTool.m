@@ -40,14 +40,6 @@
     return tool;
 }
 
-- (void)dealloc {
-	[_inputStream release];		
-	[_outputStream release];
-	[_host release];
-	[_cachedWriteData release];
-	[super dealloc];
-}
-
 - (void)open
 {
 	@try {
@@ -55,9 +47,6 @@
 									 port:_port 
 							  inputStream:&_inputStream 
 							 outputStream:&_outputStream];
-		
-		[_inputStream retain];
-		[_outputStream retain];
 		
 		[_inputStream setDelegate:self];			
 		[_inputStream scheduleInRunLoop:[NSRunLoop currentRunLoop] 

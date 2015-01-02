@@ -66,7 +66,7 @@ NSString *const kNoData							= @"NO DATA";
 		//CLLocationManager* locationManager = [CLLocationManager description
 	}
 	
-	return [resp autorelease];
+	return resp;
 }
 
 
@@ -144,7 +144,7 @@ NSString *const kNoData							= @"NO DATA";
 		FLERROR(@"Error in parse string or non-data response: %s", asciistr)
 	}
 	
-	return (NSArray*)[responseArray autorelease];
+	return responseArray;
 }
 
 @end

@@ -33,7 +33,6 @@
 }
 
 - (void)setData:(NSData *)data {
-	[_data release];
 	_data = nil;
 	_data = [[NSData alloc] initWithData:data];
 }

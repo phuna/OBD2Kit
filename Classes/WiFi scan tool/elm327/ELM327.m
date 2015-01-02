@@ -439,6 +439,7 @@
 				break;
 				
 			case NSStreamEventErrorOccurred:
+            {
 				FLERROR(@"NSStreamEventErrorOccurred", nil)
 				
 				NSError* error = [_inputStream streamError];
@@ -448,7 +449,7 @@
 				[self dispatchDelegate:@selector(scanTool:didReceiveError:) withObject:error];
 				
 				break;
-				
+            }
 				
 			case NSStreamEventEndEncountered:
 				FLINFO(@"NSStreamEventEndEncountered")
@@ -482,11 +483,13 @@
 				break;
 				
 			case NSStreamEventErrorOccurred:
+            {
 				FLERROR(@"NSStreamEventErrorOccurred", nil)
 				NSError* error = [_outputStream streamError];				
 				FLNSERROR(error)
 				break;
-				
+            }
+                
 			case NSStreamEventEndEncountered:
 				FLINFO(@"NSStreamEventEndEncountered")
 				break;

@@ -531,14 +531,14 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 		sensor			= [[FLECUSensor alloc] initWithDescriptor:&g_sensorDescriptorTable[pid]];
 	}
 	
-	return [sensor autorelease];
+	return sensor;
 }
 
 + (NSArray*) troubleCodesForResponse:(FLScanToolResponse*)response {
 	
 	const char systemCode[4]	= { 'P', 'C', 'B', 'U' };	
 	uint8_t* data				= (uint8_t*)[response.data bytes];
-	int dataLength				= [response.data length];	
+	int dataLength				= (int)[response.data length];
 	NSMutableArray* codes		= nil;
 	
 	@try {
@@ -585,7 +585,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	}
 	
 	
-	return [NSArray arrayWithArray:[codes autorelease]];
+	return [NSArray arrayWithArray:codes];
 }
 
 
@@ -599,14 +599,6 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 }
 
 
-- (void)dealloc {
-	[_sensorValueHistory release];
-	[_currentResponse release];
-	
-	[super dealloc];
-}
-
-
 - (FLScanToolResponse*) currentResponse {
 	return _currentResponse;
 }
@@ -615,8 +607,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 {		
 	if(response) {		
 		if(response.pid == self.pid) {
-			[_currentResponse release];
-			_currentResponse = [response retain];
+			_currentResponse = response;
 			[self addValueHistoryForCurrentResponse];
 		}		
 	}	
@@ -628,13 +619,13 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	//return [_sensorValueHistory objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(_valueHistoryHead, (_valueHistoryTail + 1))]];
 	
 	if([_sensorValueHistory count] > 0) {
-		NSMutableArray* values = [[NSMutableArray arrayWithCapacity:(_valueHistoryTail - _valueHistoryHead - 1)] retain];
+		NSMutableArray* values = [NSMutableArray arrayWithCapacity:(_valueHistoryTail - _valueHistoryHead - 1)];
 		
 		for(NSUInteger idx = _valueHistoryHead; idx <= _valueHistoryTail; idx++) {
 			[values addObject:[_sensorValueHistory objectAtIndex:idx]];
 		}
 		
-		return [NSArray arrayWithArray:[values autorelease]];
+		return [NSArray arrayWithArray:values];
 	}
 	
 	return nil;	
@@ -665,26 +656,15 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	@try {
 		
 		if(!_sensorValueHistory) {
-			_sensorValueHistory = [[NSMutableArray arrayWithCapacity:64] retain];
+			_sensorValueHistory = [NSMutableArray arrayWithCapacity:64];
 			_valueHistoryHead	= 0;
 			_valueHistoryTail	= 0;
 		}
 		
 		if([_sensorValueHistory count] >= 64) {
-            //TODO: Remove this magic.
-			const NSUInteger removalList[] = {
-				0, 1, 2, 3, 4, 5, 6, 7, 8,
-				9, 10, 11, 12, 13, 14, 15,
-				16, 17, 18, 19, 20, 21, 22,
-				23, 24, 25, 26, 27, 28, 29,
-				30, 31
-			};
-			
-			[_sensorValueHistory removeObjectsFromIndices:(NSUInteger*)removalList numIndices:32];
-			//[_sensorValueHistory removeObjectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 32)]];
+            [_sensorValueHistory removeObjectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 32)]];
 			_valueHistoryHead = 0;
 			_valueHistoryTail = 32;
-            //
 		}
 
 
@@ -710,7 +690,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 
 - (BOOL)isMILActive {
 	if(self.pid == 0x01) {
-		if(calcMILActive([_currentResponse.data bytes], [_currentResponse.data length])) {
+		if(calcMILActive([_currentResponse.data bytes], (int)[_currentResponse.data length])) {
 			return YES;
 		}
 	}
@@ -721,7 +701,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 
 - (NSInteger)troubleCodeCount {
 	if(self.pid == 0x01) {
-		return calcNumTroubleCodes([_currentResponse.data bytes], [_currentResponse.data length]);
+		return calcNumTroubleCodes([_currentResponse.data bytes], (int)[_currentResponse.data length]);
 	}
 	
 	return 0;
@@ -740,7 +720,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	
 	if(_sensorDescriptor->sensorDescriptor1.calcFunction) {
 		
-		float val = _sensorDescriptor->sensorDescriptor1.calcFunction(_currentResponse.data.bytes, _currentResponse.data.length);
+		float val = _sensorDescriptor->sensorDescriptor1.calcFunction(_currentResponse.data.bytes, (int)_currentResponse.data.length);
 		
 		if(!metric && _sensorDescriptor->sensorDescriptor1.convertFunction) {
 			val = _sensorDescriptor->sensorDescriptor1.convertFunction(val);			
@@ -760,7 +740,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	}
 	
 	if(_sensorDescriptor->sensorDescriptor2.calcFunction) {
-		float val = _sensorDescriptor->sensorDescriptor2.calcFunction(_currentResponse.data.bytes, _currentResponse.data.length);
+		float val = _sensorDescriptor->sensorDescriptor2.calcFunction(_currentResponse.data.bytes, (int)_currentResponse.data.length);
 		
 		if(!metric && _sensorDescriptor->sensorDescriptor2.convertFunction) {
 			val = _sensorDescriptor->sensorDescriptor2.convertFunction(val);			
@@ -1025,7 +1005,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	NSInteger minValue = [self minValueForMeasurement1:metric];
 	
 	if(minValue != INT_MAX) {
-		return [NSString stringWithFormat:@"%0.1d", minValue];
+		return [NSString stringWithFormat:@"%0.1d", (int)minValue];
 	}
 	else {
 		return nil;
@@ -1042,7 +1022,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	NSInteger minValue = [self minValueForMeasurement2:metric];
 	
 	if(minValue != INT_MAX) {
-		return [NSString stringWithFormat:@"%0.1d", minValue];
+		return [NSString stringWithFormat:@"%0.1d", (int)minValue];
 	}
 	else {
 		return nil;
@@ -1064,7 +1044,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 			return [NSString stringWithFormat:@"%0.1fk", f];
 		}
 		else {
-			return [NSString stringWithFormat:@"%0.1d", maxValue];
+			return [NSString stringWithFormat:@"%0.1d", (int)maxValue];
 		}		
 	}
 	else {
@@ -1081,7 +1061,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 	NSInteger maxValue = [self maxValueForMeasurement2:metric];
 	
 	if(maxValue != INT_MAX) {
-		return [NSString stringWithFormat:@"%0.1d", maxValue];
+		return [NSString stringWithFormat:@"%0.1d", (int)maxValue];
 	}
 	else {
 		return nil;
@@ -1359,7 +1339,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 
 - (NSString*)description
 {
-    return [NSString stringWithFormat:@"#Sensor %@ pid: %i value: %@",
+    return [NSString stringWithFormat:@"#Sensor %@ pid: %ld value: %@",
             [self descriptionStringForMeasurement1],
             self.pid,
             [self valueStringForMeasurement1:YES]];

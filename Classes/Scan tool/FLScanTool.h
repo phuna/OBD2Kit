@@ -93,7 +93,6 @@ typedef enum {
 
 	NSInteger					_currentSensorIndex;
 	
-	id<FLScanToolDelegate>		_delegate;
 	NSOperation*				_streamOperation;
 	NSOperationQueue*			_scanOperationQueue;
 
