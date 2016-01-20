@@ -20,15 +20,9 @@
 
 #import <UIKit/UIKit.h>
 
-@class BasicScanViewController;
+@interface BasicScanAppDelegate : NSObject <UIApplicationDelegate>
 
-@interface BasicScanAppDelegate : NSObject <UIApplicationDelegate> {
-    UIWindow *window;
-    BasicScanViewController *viewController;
-}
-
-@property (nonatomic, retain) IBOutlet UIWindow *window;
-@property (nonatomic, retain) IBOutlet BasicScanViewController *viewController;
+@property (strong, nonatomic) UIWindow *window;
 
 @end
 

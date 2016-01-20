@@ -26,37 +26,58 @@
 
 @property (nonatomic, strong) ELM327 *scanTool;
 
+@property (weak, nonatomic) IBOutlet UITextField *hostIpAddress;
+@property (weak, nonatomic) IBOutlet UIButton *scanButton;
+
+@property (weak, nonatomic) IBOutlet UILabel* statusLabel;
+@property (weak, nonatomic) IBOutlet UILabel* scanToolNameLabel;
+
 @end
+
 
 @implementation BasicScanViewController
 
 - (void)viewDidAppear:(BOOL)animated
 {
 	[super viewDidAppear:animated];
-	[self startScan];
+
+    // Set a default IP address
+    self.hostIpAddress.text = @"192.168.1.66";
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
 	[super viewWillDisappear:animated];
-	[self stopScan];
+}
+
+- (IBAction)scanButtonClicked:(id)sender
+{
+    if ([self.scanButton.currentTitle isEqual: @"Start"]) {
+        [self.scanButton setTitle:@"Stop" forState:UIControlStateNormal];
+        [self startScan];
+    } else {
+        [self stopScan];
+        [self.scanButton setTitle:@"Start" forState:UIControlStateNormal];
+    }
 }
 
 - (void)startScan
 {
-	[self.statusLabel setText:@"Initializing..."];
+    self.statusLabel.text = @"Initializing...";
 	
-    ELM327 *scanTool = [ELM327 scanToolWithHost:@"192.168.0.6" andPort:35000];
+    ELM327 *scanTool = [ELM327 scanToolWithHost:self.hostIpAddress.text andPort:35000];
 	[scanTool setUseLocation:YES];
     [scanTool setDelegate:self];
     [scanTool startScanWithSensors:^NSArray *{
-        [self.statusLabel setText:@"Scanning..."];
-        [self.scanToolNameLabel setText:scanTool.scanToolName];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.statusLabel.text = @"Scanning...";
+            self.scanToolNameLabel.text = scanTool.scanToolName;
+        });
         
         NSArray *sensors = @[@(OBD2SensorEngineRPM),
                              @(OBD2SensorVehicleSpeed),
-                             @(OBD2SensorEngineOilTemperature),
-                             ];
+                             @(OBD2SensorOxygenSensorsPresent)];
         
         return sensors;
     }];

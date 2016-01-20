@@ -24,14 +24,11 @@
 
 @interface BasicScanViewController : UIViewController
 
-@property (weak, nonatomic) IBOutlet UILabel* statusLabel;
-@property (weak, nonatomic) IBOutlet UILabel* scanToolNameLabel;
 @property (weak, nonatomic) IBOutlet UILabel* rpmLabel;
 @property (weak, nonatomic) IBOutlet UILabel* speedLabel;
-@property (weak, nonatomic) IBOutlet UILabel *tempLabel;
+@property (weak, nonatomic) IBOutlet UILabel* tempLabel;
 
 @end
 
 @interface BasicScanViewController (ScanToolDelegate) <FLScanToolDelegate>
-
 @end
