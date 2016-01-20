@@ -1341,7 +1341,7 @@ static MultiSensorDescriptor g_sensorDescriptorTable[] = {
 {
     return [NSString stringWithFormat:@"#Sensor %@ pid: %ld value: %@",
             [self descriptionStringForMeasurement1],
-            self.pid,
+            (unsigned long)self.pid,
             [self valueStringForMeasurement1:YES]];
 }
 
